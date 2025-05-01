@@ -1,0 +1,13 @@
+@font-face {
+  font-family: 'SVN-Avo';
+  src: url('/fonts/SVN-Avo.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SVN-Avo-Bold';
+  src: url('/fonts/SVN-Avo-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
