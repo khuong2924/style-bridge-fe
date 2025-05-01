@@ -1,61 +1,28 @@
 <template>
     <MainLayout>
       <div class="container py-8">
-        <!-- Banner Quảng Cáo -->
-        <div v-if="!isSubscriptionBannerClosed" class="bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl p-6 mb-8 relative">
-          <button 
-            class="absolute top-3 right-3 text-white/80 hover:text-white"
-            @click="closeSubscriptionBanner"
-          >
-            <X size="20" />
-          </button>
-          
-          <div class="flex flex-col md:flex-row items-center justify-between">
-            <div class="mb-4 md:mb-0 md:mr-6">
-              <h2 class="text-xl md:text-2xl font-bold mb-2">Nâng cấp lên gói Premium</h2>
-              <p class="text-white/90 mb-4">Tiếp cận nhiều khách hàng hơn, nhận ưu tiên hiển thị và nhiều tính năng độc quyền khác.</p>
-              <div class="flex flex-wrap gap-3">
-                <BaseButton 
-                  variant="light" 
-                  size="lg"
-                  @click="showUpgradeModal = true"
-                >
-                  Nâng cấp ngay
-                </BaseButton>
-                <BaseButton 
-                  variant="outline-light" 
-                  size="lg"
-                  @click="$router.push('/pricing')"
-                >
-                  Xem các gói
-                </BaseButton>
-              </div>
-            </div>
-            <div class="hidden md:block">
-                <img src="https://placehold.co/600x200/10b981/FFFFFF/png?text=Premium+Features" alt="Premium Features" class="h-30" />            </div>
-          </div>
-        </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <!-- Cột Trái - Thông tin người dùng và menu -->
           <div class="lg:col-span-1 space-y-6">
             <!-- Thông tin người dùng -->
-            <BaseCard v-if="authStore.isAuthenticated">
+            <BaseCard v-if="authStore.isAuthenticated" class="motion-scale-in-[0.95] motion-delay-[0.21s]/scale motion-duration-[0.53s]/scale motion-ease-spring-bouncier">
               <div class="flex items-center">
-                <div class="h-16 w-16 rounded-full bg-gray-100 overflow-hidden mr-4">
+                <div class="h-16 w-16 rounded-full bg-gray-100 overflow-hidden mr-4 group relative">
                   <img 
                     :src="authStore.userAvatar" 
                     alt="User Avatar" 
-                    class="h-full w-full object-cover"
+                    class="h-full w-full object-cover transition-transform group-hover:scale-110 duration-500"
                   />
+                  <div class="absolute inset-0 bg-gradient-to-t from-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
                 <div>
                   <h3 class="text-lg font-semibold text-gray-900">{{ authStore.userFullName }}</h3>
-                  <p class="text-sm text-gray-500">{{ authStore.user?.role === 'artist' ? 'Nghệ sĩ trang điểm' : 'Khách hàng' }}</p>
+                  <p class="text-sm text-primary">{{ authStore.user?.role === 'artist' ? 'Nghệ sĩ trang điểm' : 'Khách hàng' }}</p>
                   <BaseButton 
                     variant="ghost" 
                     size="sm"
-                    class="mt-1 px-0"
+                    class="mt-1 px-0 text-primary-dark hover:text-primary transition-colors"
                     @click="$router.push('/profile')"
                   >
                     Xem hồ sơ
@@ -70,15 +37,17 @@
                 <h3 class="text-lg font-semibold text-gray-900">Menu nhanh</h3>
               </template>
               
-              <div class="space-y-1">
+              <div class="space-y-0.5">
                 <router-link 
                   v-for="item in quickMenuItems" 
                   :key="item.path"
                   :to="item.path"
-                  class="flex items-center py-2 px-3 rounded-md hover:bg-gray-50 transition-colors"
+                  class="flex items-center py-2.5 px-3 rounded-lg hover:bg-primary/5 transition-colors group"
                 >
-                  <component :is="item.icon" size="18" class="mr-3 text-gray-500" />
-                  <span class="text-gray-700">{{ item.label }}</span>
+                  <div class="mr-3 h-8 w-8 flex items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                    <component :is="item.icon" size="16" />
+                  </div>
+                  <span class="text-gray-700 group-hover:text-primary-dark transition-colors">{{ item.label }}</span>
                 </router-link>
               </div>
             </BaseCard>
@@ -198,14 +167,14 @@
             </BaseCard>
             
             <!-- Bộ lọc -->
-            <div class="flex overflow-x-auto pb-2 space-x-2">
+            <div class="flex overflow-x-auto pb-3 space-x-2">
               <button 
                 v-for="filter in filters" 
                 :key="filter.value"
-                class="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors"
+                class="px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-300"
                 :class="activeFilter === filter.value 
-                  ? 'bg-primary text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                  ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-md' 
+                  : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary/30'"
                 @click="activeFilter = filter.value"
               >
                 {{ filter.label }}
@@ -235,12 +204,12 @@
               <div 
                 v-for="post in filteredPosts" 
                 :key="post.id"
-                class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm"
+                class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
               >
                 <!-- Header -->
                 <div class="p-4 flex items-center justify-between">
                   <div class="flex items-center">
-                    <div class="h-10 w-10 rounded-full bg-gray-100 overflow-hidden mr-3">
+                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-primary-lighter to-primary overflow-hidden mr-3 shadow-md">
                       <img 
                         :src="post.author.avatar || '/placeholder-avatar.jpg'" 
                         alt="Author Avatar" 
@@ -248,19 +217,19 @@
                       />
                     </div>
                     <div>
-                      <h3 class="font-medium text-gray-900">{{ post.author.name }}</h3>
-                      <p class="text-xs text-gray-500">{{ formatTime(post.timestamp) }}</p>
+                      <h3 class="font-semibold text-gray-900">{{ post.author.name }}</h3>
+                      <p class="text-xs text-primary">{{ formatTime(post.timestamp) }}</p>
                     </div>
                   </div>
                   
-                  <button class="text-gray-400 hover:text-gray-600">
+                  <button class="text-gray-400 hover:text-primary rounded-full p-2 hover:bg-gray-50 transition-colors">
                     <MoreVertical size="18" />
                   </button>
                 </div>
                 
                 <!-- Content -->
-                <div class="px-4 pb-3">
-                  <p class="text-gray-700 mb-3">{{ post.content }}</p>
+                <div class="px-5 pb-4">
+                  <p class="text-gray-700 mb-4 leading-relaxed">{{ post.content }}</p>
                   
                   <!-- Tags -->
                   <div v-if="post.tags && post.tags.length > 0" class="flex flex-wrap gap-2 mb-3">
@@ -459,11 +428,11 @@
         
         <!-- Post Modal -->
         <div v-if="showPostModal" class="fixed inset-0 z-50 flex items-center justify-center">
-          <div class="absolute inset-0 bg-black bg-opacity-50" @click="showPostModal = false"></div>
-          <div class="relative z-10 bg-white rounded-lg shadow-xl w-full max-w-lg">
-            <div class="flex items-center justify-between p-4 border-b border-gray-200">
+          <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showPostModal = false"></div>
+          <div class="relative z-10 bg-white rounded-xl shadow-xl w-full max-w-lg transform motion-scale-in-[0.95] motion-duration-[0.53s]/scale motion-ease-spring-bouncy">
+            <div class="flex items-center justify-between p-5 border-b border-gray-200">
               <h2 class="text-xl font-semibold text-gray-900">Tạo bài đăng</h2>
-              <button class="text-gray-400 hover:text-gray-500" @click="showPostModal = false">
+              <button class="text-gray-400 hover:text-gray-500 hover:rotate-90 transition-transform duration-300" @click="showPostModal = false">
                 <X size="20" />
               </button>
             </div>
@@ -622,39 +591,38 @@
         </div>
         
         <!-- Gallery Modal -->
-        <div v-if="showGallery" class="fixed inset-0 z-50 flex items-center justify-center">
-          <div class="absolute inset-0 bg-black bg-opacity-90" @click="closeGallery"></div>
+        <div v-if="showGallery" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 backdrop-blur-sm">
+          <div class="absolute inset-0" @click="closeGallery"></div>
           <div class="relative z-10 w-11/12 max-w-5xl">
-            <button class="absolute -top-12 right-0 text-white p-2" @click="closeGallery">
+            <button 
+              class="absolute -top-12 right-0 text-white p-2 hover:rotate-180 transition-transform duration-300" 
+              @click="closeGallery">
               <X size="24" />
             </button>
-            
-            <div class="flex items-center justify-center h-[70vh]">
-            </div>
             
             <div class="flex items-center justify-center h-[70vh]">
               <img 
                 :src="galleryImages[currentImageIndex]?.url" 
                 :alt="`Gallery image ${currentImageIndex + 1}`" 
-                class="max-w-full max-h-full object-contain" 
+                class="max-w-full max-h-full object-contain shadow-2xl" 
               />
             </div>
             
-            <div class="flex items-center justify-center gap-8 mt-4 text-white">
+            <div class="flex items-center justify-center gap-8 mt-6 text-white">
               <button 
-                class="p-3 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                class="p-3 rounded-full bg-primary/30 backdrop-blur-md hover:bg-primary/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all transform hover:-translate-x-1"
                 @click="prevImage"
                 :disabled="currentImageIndex === 0"
               >
                 <ChevronLeft size="24" />
               </button>
               
-              <div class="text-lg">
+              <div class="text-lg bg-primary/20 backdrop-blur-md px-4 py-2 rounded-full">
                 {{ currentImageIndex + 1 }} / {{ galleryImages.length }}
               </div>
               
               <button 
-                class="p-3 rounded-full bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                class="p-3 rounded-full bg-primary/30 backdrop-blur-md hover:bg-primary/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all transform hover:translate-x-1"
                 @click="nextImage"
                 :disabled="currentImageIndex === galleryImages.length - 1"
               >
@@ -662,12 +630,14 @@
               </button>
             </div>
             
-            <div class="flex gap-2 mt-4 overflow-x-auto pb-2">
+            <div class="flex gap-3 mt-6 overflow-x-auto pb-3">
               <div 
                 v-for="(image, index) in galleryImages" 
                 :key="index"
-                class="w-20 h-20 rounded overflow-hidden cursor-pointer transition-opacity"
-                :class="index === currentImageIndex ? 'ring-2 ring-primary' : 'opacity-60 hover:opacity-100'"
+                class="w-20 h-20 rounded-lg overflow-hidden cursor-pointer transition-all duration-300"
+                :class="index === currentImageIndex 
+                  ? 'ring-2 ring-primary scale-105 shadow-lg' 
+                  : 'opacity-60 hover:opacity-100 hover:scale-105'"
                 @click="currentImageIndex = index"
               >
                 <img :src="image.url" :alt="`Thumbnail ${index + 1}`" class="w-full h-full object-cover" />
