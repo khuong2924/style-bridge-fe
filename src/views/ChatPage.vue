@@ -7,7 +7,7 @@
             Trò chuyện với khách hàng và đối tác của bạn
           </p>
         </div>
-        
+
         <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
           <div class="grid grid-cols-1 md:grid-cols-3 h-[calc(100vh-250px)]">
             <!-- Danh sách cuộc trò chuyện -->

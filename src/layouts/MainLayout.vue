@@ -1,11 +1,10 @@
 <template>
-    <div class="flex flex-col min-h-screen">
+    <div class=" ml-5 flex flex-col min-h-screen">
       <header class="sticky top-0 z-50 bg-white shadow-sm">
         <div class="container">
           <div class="flex items-center justify-between h-16">
             <router-link to="/" class="flex items-center gap-2">
-              <img src="/logo.svg" alt="Logo" class="h-8 w-auto" />
-              <span class="text-xl font-bold text-primary">MakeupConnect</span>
+              <span class="text-xl font-bold text-primary">StyleBridge</span>
             </router-link>
             
             <nav class="hidden md:flex items-center space-x-6">
@@ -110,8 +109,7 @@
         <div class="container">
           <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div class="col-span-1 md:col-span-1">
-              <img src="/logo.svg" alt="Logo" class="h-10 w-auto mb-4" />
-              <h3 class="text-xl font-bold text-primary mb-2">MakeupConnect</h3>
+              <h3 class="text-xl font-bold text-primary mb-2">StyleBridge</h3>
               <p class="text-gray-600 mb-4">
                 Nền tảng kết nối nghệ sĩ trang điểm và khách hàng hàng đầu Việt Nam
               </p>
@@ -188,8 +186,8 @@
   // Mock user data - would come from auth store in real app
   const isLoggedIn = ref(true);
   const user = ref({
-    name: 'Nguyễn Văn A',
-    avatar: null
+    name: 'Nguyễn Thị A',
+    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s'
   });
   
   const showMobileMenu = ref(false);

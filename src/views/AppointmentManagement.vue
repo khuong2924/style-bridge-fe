@@ -16,7 +16,7 @@
             :class="activeTab === tab.value 
               ? 'text-primary border-b-2 border-primary' 
               : 'text-gray-500 hover:text-gray-700 hover:border-gray-300 border-b-2 border-transparent'"
-            @click="activeTab = tab.value"
+            @click="changeTab(tab.value)"
           >
             <component :is="tab.icon" class="mr-2" size="18" />
             <span>{{ tab.label }}</span>
@@ -268,8 +268,6 @@
                       v-model="appointmentForm.status"
                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 focus:ring-opacity-50"
                     >
-                      <option value="pending">Chờ xác nhận</option>
-                      <option value="confirmed">Đã xác nhận</option>
                       <option value="completed">Đã hoàn thành</option>
                       <option value="cancelled">Đã hủy</option>
                     </select>
@@ -427,8 +425,6 @@
   // Tabs
   const tabs = [
     { label: 'Tất cả', value: 'all', icon: Calendar },
-    { label: 'Chờ xác nhận', value: 'pending', icon: AlertCircle },
-    { label: 'Đã xác nhận', value: 'confirmed', icon: Check },
     { label: 'Đã hoàn thành', value: 'completed', icon: CheckCircle },
     { label: 'Đã hủy', value: 'cancelled', icon: XIcon }
   ];
@@ -532,6 +528,21 @@
   });
   
   // Methods
+  const changeTab = (tabValue) => {
+    activeTab.value = tabValue;
+    
+    // Only scroll when selecting "completed" or "cancelled" tabs
+    if (tabValue === 'completed' || tabValue === 'cancelled') {
+      // Wait for DOM update
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.querySelector('.space-y-4')?.offsetTop || 0,
+          behavior: 'smooth'
+        });
+      }, 100);
+    }
+  };
+  
   const getAppointmentCount = (status) => {
     if (status === 'all') {
       return appointments.value.length;

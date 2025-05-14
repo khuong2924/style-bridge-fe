@@ -10,7 +10,7 @@
               <div class="flex items-center">
                 <div class="h-16 w-16 rounded-full bg-gray-100 overflow-hidden mr-4 group relative">
                   <img 
-                    :src="authStore.userAvatar" 
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s"
                     alt="User Avatar" 
                     class="h-full w-full object-cover transition-transform group-hover:scale-110 duration-500"
                   />
@@ -18,7 +18,7 @@
                 </div>
                 <div>
                   <h3 class="text-lg font-semibold text-gray-900">{{ authStore.userFullName }}</h3>
-                  <p class="text-sm text-primary">{{ authStore.user?.role === 'artist' ? 'Nghệ sĩ trang điểm' : 'Khách hàng' }}</p>
+                  <p class="text-sm text-primary">{{ authStore.user?.role === 'artist' ? 'Nghệ sĩ trang điểm' : 'Nguyễn Thị A' }}</p>
                   <BaseButton 
                     variant="ghost" 
                     size="sm"
@@ -42,12 +42,13 @@
                   v-for="item in quickMenuItems" 
                   :key="item.path"
                   :to="item.path"
-                  class="flex items-center py-2.5 px-3 rounded-lg hover:bg-primary/5 transition-colors group"
+                  class="flex items-center py-2.5 px-3 rounded-lg bg-white border border-gray-100 text-gray-700 transition-all duration-300 group btn-hover-hide quick-menu-item"
                 >
-                  <div class="mr-3 h-8 w-8 flex items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                  <div class="mr-3 h-8 w-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors icon-container">
                     <component :is="item.icon" size="16" />
                   </div>
-                  <span class="text-gray-700 group-hover:text-primary-dark transition-colors">{{ item.label }}</span>
+                  <span class="text-gray-700 transition-colors">{{ item.label }}</span>
+                  <span v-if="$route.path === item.path" class="ml-auto h-2 w-2 rounded-full bg-primary"></span>
                 </router-link>
               </div>
             </BaseCard>
@@ -60,6 +61,7 @@
                   <BaseButton 
                     variant="ghost" 
                     size="sm"
+                    class="btn-hover-hide"
                     @click="$router.push('/applications')"
                   >
                     Xem tất cả
@@ -80,7 +82,7 @@
                 >
                   <div class="h-10 w-10 rounded-full bg-gray-100 overflow-hidden mr-3 flex-shrink-0">
                     <img 
-                      :src="notification.user.avatar || '/placeholder-avatar.jpg'" 
+                      :src="notification.user.avatar || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s'" 
                       alt="User Avatar" 
                       class="h-full w-full object-cover"
                     />
@@ -126,7 +128,7 @@
               <div class="flex items-start">
                 <div class="h-10 w-10 rounded-full bg-gray-100 overflow-hidden mr-3 flex-shrink-0">
                   <img 
-                    :src="authStore.userAvatar" 
+                    :src="authStore.userAvatar || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s'" 
                     alt="User Avatar" 
                     class="h-full w-full object-cover"
                   />
@@ -141,21 +143,21 @@
                   
                   <div class="flex mt-3 space-x-2">
                     <button 
-                      class="flex items-center px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors"
+                      class="flex items-center px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors btn-hover-hide btn-action-primary"
                       @click="showPostModal = true"
                     >
                       <Image size="18" class="mr-2 text-primary" />
                       <span class="text-sm text-gray-700">Hình ảnh</span>
                     </button>
                     <button 
-                      class="flex items-center px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors"
+                      class="flex items-center px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors btn-hover-hide btn-action-success"
                       @click="showPostModal = true"
                     >
                       <Video size="18" class="mr-2 text-success" />
                       <span class="text-sm text-gray-700">Video</span>
                     </button>
                     <button 
-                      class="flex items-center px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors"
+                      class="flex items-center px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors btn-hover-hide btn-action-warning"
                       @click="$router.push('/jobs/create')"
                     >
                       <Briefcase size="18" class="mr-2 text-warning" />
@@ -167,18 +169,45 @@
             </BaseCard>
             
             <!-- Bộ lọc -->
-            <div class="flex overflow-x-auto pb-3 space-x-2">
-              <button 
-                v-for="filter in filters" 
-                :key="filter.value"
-                class="px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-300"
-                :class="activeFilter === filter.value 
-                  ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-md' 
-                  : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary/30'"
-                @click="activeFilter = filter.value"
-              >
-                {{ filter.label }}
-              </button>
+            <div class="relative mb-4">
+              <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-r from-primary-lighter/10 via-primary/5 to-primary-dark/10 rounded-lg -z-10"></div>
+              <div class="flex items-center justify-between mb-2 px-2">
+                <h3 class="text-lg font-semibold text-gray-800">Khám phá</h3>
+                <div class="text-xs text-gray-500">{{ filteredPosts.length }} bài viết</div>
+              </div>
+              <div class="filter-container flex overflow-x-auto py-3 px-2 space-x-3 scrollbar-hide relative">
+                <button 
+                  v-for="filter in filters" 
+                  :key="filter.value"
+                  class="group flex items-center px-5 py-3 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 hover:translate-y-[-2px] bg-white/90 backdrop-blur-sm border border-gray-200/90 text-gray-700 hover:border-primary/30 hover:shadow-md hover:bg-gray-50/80"
+                  @click="activeFilter = filter.value"
+                >
+                  <div class="relative">
+                    <component 
+                      :is="filter.icon" 
+                      :size="16" 
+                      class="mr-2 text-primary transition-transform group-hover:scale-110 group-hover:rotate-3"
+                    />
+                    <span 
+                      v-if="getFilterCount(filter.value) > 0 && filter.value !== 'all'" 
+                      class="absolute -top-2 -right-2 w-4 h-4 bg-error text-white text-[10px] flex items-center justify-center rounded-full font-bold"
+                    >
+                      {{ getFilterCount(filter.value) }}
+                    </span>
+                  </div>
+                  <span>{{ filter.label }}</span>
+                  <span 
+                    v-if="activeFilter === filter.value" 
+                    class="ml-2 h-2 w-2 rounded-full bg-primary"
+                  ></span>
+                  <span 
+                    class="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/20 to-primary-dark/20 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                  ></span>
+                </button>
+                
+                <!-- Gradient edge effect -->
+                <div class="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
+              </div>
             </div>
             
             <!-- Bảng tin -->
@@ -194,6 +223,7 @@
               </p>
               <BaseButton 
                 variant="primary" 
+                class="btn-hover-hide"
                 @click="showPostModal = true"
               >
                 Đăng bài ngay
@@ -211,7 +241,7 @@
                   <div class="flex items-center">
                     <div class="h-12 w-12 rounded-full bg-gradient-to-br from-primary-lighter to-primary overflow-hidden mr-3 shadow-md">
                       <img 
-                        :src="post.author.avatar || '/placeholder-avatar.jpg'" 
+                        :src="post.author.avatar || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s'" 
                         alt="Author Avatar" 
                         class="h-full w-full object-cover"
                       />
@@ -222,7 +252,7 @@
                     </div>
                   </div>
                   
-                  <button class="text-gray-400 hover:text-primary rounded-full p-2 hover:bg-gray-50 transition-colors">
+                  <button class="text-gray-400 hover:text-primary rounded-full p-2 hover:bg-gray-50 transition-colors btn-hover-hide">
                     <MoreVertical size="18" />
                   </button>
                 </div>
@@ -304,7 +334,7 @@
                       </div>
                       
                       <div class="flex items-center text-primary font-medium">
-                        <DollarSign size="14" class="mr-1.5" />
+                        <span class="mr-1.5 font-bold text-xs">₫</span>
                         <span>{{ formatPrice(post.job.price) }}</span>
                       </div>
                     </div>
@@ -339,7 +369,7 @@
                 <div class="px-4 py-2 border-t border-gray-100">
                   <div class="flex justify-between">
                     <button 
-                      class="flex items-center justify-center flex-1 py-2 rounded-md hover:bg-gray-50 transition-colors"
+                      class="flex items-center justify-center flex-1 py-2 rounded-md hover:bg-gray-50 transition-colors btn-hover-hide btn-action-like"
                       @click="toggleLike(post)"
                     >
                       <Heart 
@@ -351,7 +381,7 @@
                     </button>
                     
                     <button 
-                      class="flex items-center justify-center flex-1 py-2 rounded-md hover:bg-gray-50 transition-colors"
+                      class="flex items-center justify-center flex-1 py-2 rounded-md hover:bg-gray-50 transition-colors btn-hover-hide btn-action-comment"
                       @click="focusComment(post.id)"
                     >
                       <MessageSquare size="18" class="text-gray-500 mr-2" />
@@ -359,7 +389,7 @@
                     </button>
                     
                     <button 
-                      class="flex items-center justify-center flex-1 py-2 rounded-md hover:bg-gray-50 transition-colors"
+                      class="flex items-center justify-center flex-1 py-2 rounded-md hover:bg-gray-50 transition-colors btn-hover-hide btn-action-share"
                       @click="sharePost(post)"
                     >
                       <Share2 size="18" class="text-gray-500 mr-2" />
@@ -379,7 +409,7 @@
                     >
                       <div class="h-8 w-8 rounded-full bg-gray-100 overflow-hidden mr-2 flex-shrink-0">
                         <img 
-                          :src="comment.author.avatar || '/placeholder-avatar.jpg'" 
+                          :src="comment.author.avatar || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s'" 
                           alt="Comment Author Avatar" 
                           class="h-full w-full object-cover"
                         />
@@ -398,7 +428,7 @@
                   <div class="flex items-start">
                     <div class="h-8 w-8 rounded-full bg-gray-100 overflow-hidden mr-2 flex-shrink-0">
                       <img 
-                        :src="authStore.userAvatar" 
+                        :src="authStore.userAvatar || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s'" 
                         alt="User Avatar" 
                         class="h-full w-full object-cover"
                       />
@@ -413,7 +443,7 @@
                         @keyup.enter="addComment(post)"
                       />
                       <button 
-                        class="absolute right-2 top-1/2 transform -translate-y-1/2 text-primary"
+                        class="absolute right-2 top-1/2 transform -translate-y-1/2 text-primary btn-hover-hide btn-send"
                         @click="addComment(post)"
                       >
                         <Send size="16" />
@@ -432,7 +462,7 @@
           <div class="relative z-10 bg-white rounded-xl shadow-xl w-full max-w-lg transform motion-scale-in-[0.95] motion-duration-[0.53s]/scale motion-ease-spring-bouncy">
             <div class="flex items-center justify-between p-5 border-b border-gray-200">
               <h2 class="text-xl font-semibold text-gray-900">Tạo bài đăng</h2>
-              <button class="text-gray-400 hover:text-gray-500 hover:rotate-90 transition-transform duration-300" @click="showPostModal = false">
+              <button class="text-gray-400 hover:text-gray-500 hover:rotate-90 transition-transform duration-300 btn-hover-hide btn-close" @click="showPostModal = false">
                 <X size="20" />
               </button>
             </div>
@@ -441,7 +471,7 @@
               <div class="flex items-start mb-4">
                 <div class="h-10 w-10 rounded-full bg-gray-100 overflow-hidden mr-3 flex-shrink-0">
                   <img 
-                    :src="authStore.userAvatar" 
+                    :src="authStore.userAvatar || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s'" 
                     alt="User Avatar" 
                     class="h-full w-full object-cover"
                   />
@@ -479,7 +509,7 @@
                     class="w-full h-full object-cover"
                   />
                   <button 
-                    class="absolute top-1 right-1 p-1 bg-black bg-opacity-50 rounded-full text-white"
+                    class="absolute top-1 right-1 p-1 bg-black bg-opacity-50 rounded-full text-white btn-hover-hide"
                     @click="removeMedia(index)"
                   >
                     <X size="14" />
@@ -490,19 +520,19 @@
               <div class="flex items-center justify-between border-t border-gray-200 pt-3">
                 <div class="flex items-center space-x-2">
                   <button 
-                    class="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
+                    class="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100 btn-hover-hide"
                     @click="$refs.mediaInput.click()"
                   >
                     <Image size="20" />
                   </button>
                   <button 
-                    class="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
+                    class="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100 btn-hover-hide"
                     @click="$refs.mediaInput.click()"
                   >
                     <Video size="20" />
                   </button>
                   <button 
-                    class="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
+                    class="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100 btn-hover-hide"
                     @click="showEmojiPicker = !showEmojiPicker"
                   >
                     <Smile size="20" />
@@ -521,6 +551,7 @@
                   variant="primary" 
                   :disabled="!newPostContent.trim() && newPostMedia.length === 0"
                   :loading="isSubmittingPost"
+                  class="btn-hover-hide btn-primary"
                   @click="submitPost"
                 >
                   Đăng
@@ -536,7 +567,7 @@
           <div class="relative z-10 bg-white rounded-lg shadow-xl w-full max-w-3xl">
             <div class="flex items-center justify-between p-6 border-b border-gray-200">
               <h2 class="text-2xl font-semibold text-gray-900">Nâng cấp tài khoản</h2>
-              <button class="text-gray-400 hover:text-gray-500" @click="showUpgradeModal = false">
+              <button class="text-gray-400 hover:text-gray-500 btn-hover-hide btn-close" @click="showUpgradeModal = false">
                 <X size="20" />
               </button>
             </div>
@@ -579,6 +610,8 @@
                     <BaseButton 
                       :variant="plan.recommended ? 'primary' : 'outline'"
                       block
+                      class="btn-hover-hide"
+                      :class="plan.recommended ? 'btn-primary' : ''"
                       @click="selectPlan(plan)"
                     >
                       {{ plan.recommended ? 'Đăng ký ngay' : 'Chọn gói' }}
@@ -595,7 +628,7 @@
           <div class="absolute inset-0" @click="closeGallery"></div>
           <div class="relative z-10 w-11/12 max-w-5xl">
             <button 
-              class="absolute -top-12 right-0 text-white p-2 hover:rotate-180 transition-transform duration-300" 
+              class="absolute -top-12 right-0 text-white p-2 hover:rotate-180 transition-transform duration-300 btn-hover-hide btn-close" 
               @click="closeGallery">
               <X size="24" />
             </button>
@@ -610,7 +643,7 @@
             
             <div class="flex items-center justify-center gap-8 mt-6 text-white">
               <button 
-                class="p-3 rounded-full bg-primary/30 backdrop-blur-md hover:bg-primary/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all transform hover:-translate-x-1"
+                class="p-3 rounded-full bg-primary/30 backdrop-blur-md hover:bg-primary/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all transform hover:-translate-x-1 btn-hover-hide"
                 @click="prevImage"
                 :disabled="currentImageIndex === 0"
               >
@@ -622,7 +655,7 @@
               </div>
               
               <button 
-                class="p-3 rounded-full bg-primary/30 backdrop-blur-md hover:bg-primary/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all transform hover:translate-x-1"
+                class="p-3 rounded-full bg-primary/30 backdrop-blur-md hover:bg-primary/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all transform hover:translate-x-1 btn-hover-hide"
                 @click="nextImage"
                 :disabled="currentImageIndex === galleryImages.length - 1"
               >
@@ -655,7 +688,7 @@
     X, LoaderCircle, Image, Video, Briefcase, MapPin, Calendar, DollarSign,
     Heart, MessageSquare, Share2, MoreVertical, Send, Smile, Check,
     ChevronLeft, ChevronRight, TrendingUp, Newspaper, Home, Bell, Users,
-    Settings, HelpCircle
+    Settings, HelpCircle, Filter, Sparkles, Brush, Camera, Palette
   } from 'lucide-vue-next';
   import MainLayout from '@/layouts/MainLayout.vue';
   import BaseCard from '@/components/ui/BaseCard.vue';
@@ -688,12 +721,12 @@
   
   // Filters
   const filters = [
-    { label: 'Tất cả', value: 'all' },
-    { label: 'Công việc', value: 'jobs' },
-    { label: 'Xu hướng', value: 'trending' },
-    { label: 'Trang điểm cô dâu', value: 'bridal' },
-    { label: 'Trang điểm sự kiện', value: 'event' },
-    { label: 'Trang điểm nghệ thuật', value: 'artistic' }
+    { label: 'Tất cả', value: 'all', icon: Filter },
+    { label: 'Công việc', value: 'jobs', icon: Briefcase },
+    { label: 'Xu hướng', value: 'trending', icon: TrendingUp },
+    { label: 'Trang điểm cô dâu', value: 'bridal', icon: Sparkles },
+    { label: 'Trang điểm sự kiện', value: 'event', icon: Camera },
+    { label: 'Trang điểm nghệ thuật', value: 'artistic', icon: Palette }
   ];
   
   // Quick menu items
@@ -789,8 +822,9 @@
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND',
-      maximumFractionDigits: 0
-    }).format(price);
+      maximumFractionDigits: 0,
+      currencyDisplay: 'symbol'
+    }).format(price).replace('₫', '').trim();
   };
   
   const closeSubscriptionBanner = () => {
@@ -978,6 +1012,13 @@
     }
   };
   
+  const getFilterCount = (filterValue) => {
+    if (filterValue === 'all') return posts.value.length;
+    if (filterValue === 'jobs') return posts.value.filter(post => post.job).length;
+    if (filterValue === 'trending') return posts.value.filter(post => post.trending).length;
+    return posts.value.filter(post => post.tags && post.tags.includes(filterValue)).length;
+  };
+  
   // Fetch data (mock)
   onMounted(async () => {
     isLoading.value = true;
@@ -994,11 +1035,11 @@
           timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
           author: {
             name: 'Nguyễn Thị Makeup',
-            avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80'
+            avatar: 'https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-512.png'
           },
           media: [
-            { url: 'https://images.unsplash.com/photo-1560577953-53a1a4e2bc1e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YnJpZGFsJTIwbWFrZXVwfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60', type: 'image' },
-            { url: 'https://images.unsplash.com/photo-1595994195565-d5670ad4e74b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGJyaWRhbCUyMG1ha2V1cHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60', type: 'image' }
+            { url: 'https://afamilycdn.com/150157425591193600/2020/3/15/590521086729755431268163506859756613829005-1584241194844185165225.jpg', type: 'image' },
+            { url: 'https://nvhphunu.vn/wp-content/uploads/2024/05/r32r23r3rUntitled.png', type: 'image' }
           ],
           tags: ['makeup', 'bride', 'wedding', 'bridal'],
           likes: 24,
@@ -1010,7 +1051,7 @@
               timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000),
               author: {
                 name: 'Minh Tâm',
-                avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHByb2ZpbGV8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60'
+                avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s'
               }
             }
           ],
@@ -1044,13 +1085,13 @@
           timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
           author: {
             name: 'Lê Thị B',
-            avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cG9ydHJhaXR8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60'
+            avatar: 'https://png.pngtree.com/png-vector/20220817/ourmid/pngtree-women-cartoon-avatar-in-flat-style-png-image_6110776.png'
           },
           media: [
             { url: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y29zbWV0aWNzfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60', type: 'image' },
             { url: 'https://images.unsplash.com/photo-1583241475880-083f84372725?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Y29zbWV0aWNzfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60', type: 'image' },
-            { url: 'https://images.unsplash.com/photo-1591375275624-fa9d336ee56c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8Y29zbWV0aWNzfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60', type: 'image' },
-            { url: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y29zbWV0aWNzfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60', type: 'image' },
+            { url: 'https://nvhphunu.vn/wp-content/uploads/2024/05/r32r23r3rUntitled.png', type: 'image' },
+            { url: 'https://nvhphunu.vn/wp-content/uploads/2024/05/r32r23r3rUntitled.png', type: 'image' },
             { url: 'https://images.unsplash.com/photo-1583241475880-083f84372725?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Y29zbWV0aWNzfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60', type: 'image' }
           ],
           tags: ['makeup', 'cosmetics', 'review'],
@@ -1119,7 +1160,7 @@
           read: false,
           user: {
             name: 'Minh Tâm',
-            avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHByb2ZpbGV8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60'
+            avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s'
           }
         },
         {
@@ -1170,3 +1211,204 @@
     }
   });
   </script>
+
+<style scoped>
+:root {
+  --color-primary-rgb: 79, 70, 229;
+  --color-primary-dark-rgb: 67, 56, 202;
+  --color-success-rgb: 75, 192, 192;
+  --color-warning-rgb: 255, 159, 64;
+  --color-error-rgb: 255, 71, 87;
+  --color-info-rgb: 30, 144, 255;
+}
+
+.btn-hover-hide {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-hover-hide:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  filter: brightness(1.05);
+}
+
+.btn-hover-hide:active {
+  transform: translateY(-1px);
+}
+
+.btn-hover-hide::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: translateX(-100%);
+}
+
+.btn-hover-hide:hover::after {
+  animation: btn-shine 0.8s;
+}
+
+/* Quick menu item hover effect */
+.quick-menu-item {
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.quick-menu-item:hover {
+  background-color: rgba(var(--color-primary-rgb), 0.05);
+  border-color: rgba(var(--color-primary-rgb), 0.1);
+  transform: translateX(5px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.quick-menu-item:hover .icon-container {
+  transform: scale(1.1) rotate(5deg);
+  color: rgb(var(--color-primary-rgb));
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+}
+
+/* Custom button styles */
+.btn-action-primary:hover {
+  background: linear-gradient(to right, rgba(var(--color-primary-rgb), 0.1), rgba(var(--color-primary-rgb), 0.05));
+  border-color: rgba(var(--color-primary-rgb), 0.2);
+}
+
+.btn-action-success:hover {
+  background: linear-gradient(to right, rgba(var(--color-success-rgb), 0.1), rgba(var(--color-success-rgb), 0.05));
+  border-color: rgba(var(--color-success-rgb), 0.2);
+}
+
+.btn-action-warning:hover {
+  background: linear-gradient(to right, rgba(var(--color-warning-rgb), 0.1), rgba(var(--color-warning-rgb), 0.05));
+  border-color: rgba(var(--color-warning-rgb), 0.2);
+}
+
+.btn-action-like:hover .text-gray-500:not(.fill-error) {
+  color: rgb(var(--color-error-rgb));
+  transform: scale(1.2);
+  transition: all 0.3s ease;
+}
+
+.btn-action-comment:hover .text-gray-500 {
+  color: rgb(var(--color-info-rgb));
+  transform: scale(1.2);
+  transition: all 0.3s ease;
+}
+
+.btn-action-share:hover .text-gray-500 {
+  color: rgb(var(--color-success-rgb));
+  transform: scale(1.2);
+  transition: all 0.3s ease;
+}
+
+.btn-send:hover {
+  transform: scale(1.2) translateY(-50%);
+  color: rgb(var(--color-info-rgb));
+}
+
+/* Close button animation */
+.btn-close {
+  transition: all 0.3s ease;
+}
+
+.btn-close:hover {
+  transform: rotate(90deg);
+  color: rgb(var(--color-error-rgb));
+}
+
+/* Primary button animation */
+.btn-primary {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(var(--color-primary-rgb), 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(-1px);
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: translateX(-100%);
+}
+
+.btn-primary:hover::after {
+  animation: btn-shine 0.8s;
+}
+
+@keyframes btn-shine {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.active-filter {
+  position: relative;
+  overflow: hidden;
+}
+
+.active-filter::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(45deg);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+  20%, 100% {
+    transform: translateX(100%) rotate(45deg);
+  }
+}
+
+.filter-container {
+  padding-bottom: 5px;
+  mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+}
+</style>

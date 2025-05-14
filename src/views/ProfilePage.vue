@@ -490,59 +490,7 @@
               </div>
             </BaseCard>
             
-            <!-- Recent Reviews -->
-            <BaseCard>
-              <template #header>
-                <div class="flex justify-between items-center">
-                  <h3 class="text-xl font-semibold text-gray-900">Đánh giá gần đây</h3>
-                  <BaseButton 
-                    variant="ghost" 
-                    size="sm"
-                    @click="$router.push('/reviews')"
-                  >
-                    Xem tất cả
-                  </BaseButton>
-                </div>
-              </template>
-              
-              <div v-if="profile.recentReviews.length === 0" class="flex flex-col items-center justify-center py-8 text-center">
-                <MessageSquare class="text-gray-300 h-16 w-16 mb-4" />
-                <h4 class="text-lg font-medium text-gray-900 mb-2">Chưa có đánh giá nào</h4>
-                <p class="text-gray-600 max-w-md">
-                  Bạn chưa nhận được đánh giá nào. Đánh giá sẽ xuất hiện ở đây sau khi khách hàng đánh giá dịch vụ của bạn.
-                </p>
-              </div>
-              
-              <div v-else class="space-y-6">
-                <div 
-                  v-for="(review, index) in profile.recentReviews" 
-                  :key="index"
-                  class="pb-6 border-b border-gray-100 last:border-0 last:pb-0"
-                >
-                  <div class="flex justify-between items-start mb-3">
-                    <div class="flex items-start">
-                      <div class="h-10 w-10 rounded-full bg-gray-100 overflow-hidden mr-3">
-                        <img 
-                          :src="review.user.avatar || '/placeholder-avatar.jpg'" 
-                          alt="User Avatar" 
-                          class="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <h4 class="font-medium text-gray-900">{{ review.user.name }}</h4>
-                        <p class="text-xs text-gray-500">{{ formatDate(review.date) }}</p>
-                      </div>
-                    </div>
-                    <div class="flex items-center text-warning">
-                      <Star v-for="i in review.rating" :key="`star-${i}`" size="14" fill="currentColor" />
-                      <Star v-for="i in 5 - review.rating" :key="`empty-star-${i}`" size="14" class="text-gray-300" />
-                    </div>
-                  </div>
-                  
-                  <p class="text-gray-600 text-sm">{{ review.comment }}</p>
-                </div>
-              </div>
-            </BaseCard>
+            
           </div>
         </div>
         
@@ -770,10 +718,10 @@
       // Mock profile data
       profile.value = {
         id: 1,
-        fullName: 'Nguyễn Thị Makeup',
+        fullName: 'Nguyễn Thị A',
         role: 'Chuyên gia trang điểm cô dâu',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80',
-        email: 'nguyenthimakeup@gmail.com',
+        avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s',
+        email: 'nguyenthi.ail.com',
         phone: '0912345678',
         address: 'Quận 1, TP.HCM',
         bio: 'Tôi là chuyên gia trang điểm với hơn 5 năm kinh nghiệm, chuyên về trang điểm cô dâu và sự kiện.\n\nVới niềm đam mê làm đẹp và sự tỉ mỉ trong từng chi tiết, tôi luôn mang đến cho khách hàng vẻ đẹp tự nhiên nhưng vẫn nổi bật trong ngày trọng đại của họ.\n\nTôi đã từng hợp tác với nhiều studio ảnh cưới lớn tại TP.HCM và nhận được nhiều phản hồi tích cực từ khách hàng.',
@@ -786,15 +734,14 @@
           { name: 'Trang điểm nghệ thuật', level: 3 }
         ],
         socialLinks: [
-          { platform: 'facebook', username: 'nguyenthimakeup', url: 'https://facebook.com/nguyenthimakeup' },
-          { platform: 'instagram', username: 'nguyenthimakeup', url: 'https://instagram.com/nguyenthimakeup' },
-          { platform: 'tiktok', username: 'nguyenthimakeup', url: 'https://tiktok.com/@nguyenthimakeup' }
+          { platform: 'facebook', username: 'nguyenthi.a', url: 'https://facebook.com/nguyenthi.a' },
+          { platform: 'instagram', username: 'nguyenthi.a', url: 'https://instagram.com/nguyenthi.a' },
+          { platform: 'tiktok', username: 'nguyenthi.a', url: 'https://tiktok.com/@nguyenthi.a' }
         ],
         portfolio: [
-          { url: 'https://images.unsplash.com/photo-1560577953-53a1a4e2bc1e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YnJpZGFsJTIwbWFrZXVwfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60' },
-          { url: 'https://images.unsplash.com/photo-1595994195565-d5670ad4e74b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGJyaWRhbCUyMG1ha2V1cHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60' },
-          { url: 'https://images.unsplash.com/photo-1597225244660-1cd128c64284?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fGJyaWRhbCUyMG1ha2V1cHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60' },
-          { url: 'https://images.unsplash.com/photo-1581309553233-52c066fec8c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGJyaWRhbCUyMG1ha2V1cHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60' }
+          { url: 'https://file.hstatic.net/200000692621/article/tri-mun-tcham_aad6c0d3c3c740ddb5fb2f5e966139d6.jpg' },
+          { url: 'https://file.hstatic.net/200000692621/article/tri-mun-tcham_aad6c0d3c3c740ddb5fb2f5e966139d6.jpg' },
+          { url: 'https://file.hstatic.net/200000692621/article/tri-mun-tcham_aad6c0d3c3c740ddb5fb2f5e966139d6.jpg' }
         ],
         experience: [
           {
