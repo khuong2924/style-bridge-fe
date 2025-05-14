@@ -175,19 +175,27 @@
   </template>
   
   <script setup>
-  import { ref } from 'vue';
+  import { ref, computed } from 'vue';
+  import { useRouter } from 'vue-router';
   import { 
     Menu, X, ChevronDown, User, LayoutDashboard, 
     Settings, LogOut, Bell, Facebook, Instagram, 
     Twitter, Youtube 
   } from 'lucide-vue-next';
   import BaseButton from '@/components/ui/BaseButton.vue';
+  import { useAuthStore } from '@/stores/auth';
   
-  // Mock user data - would come from auth store in real app
-  const isLoggedIn = ref(true);
-  const user = ref({
-    name: 'Nguyễn Thị A',
-    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s'
+  const router = useRouter();
+  const authStore = useAuthStore();
+  
+  // Use auth store instead of mock data
+  const isLoggedIn = computed(() => authStore.isAuthenticated);
+  const user = computed(() => {
+    if (!authStore.user) return { name: '', avatar: '' };
+    return {
+      name: authStore.userFullName,
+      avatar: authStore.userAvatar
+    };
   });
   
   const showMobileMenu = ref(false);
@@ -214,8 +222,9 @@
   };
   
   const logout = () => {
-    // Handle logout logic
-    isLoggedIn.value = false;
+    authStore.logout();
     showUserMenu.value = false;
+    showMobileMenu.value = false;
+    router.push('/login');
   };
   </script>

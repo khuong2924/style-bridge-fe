@@ -1,0 +1,54 @@
+import axios from 'axios';
+
+// Create axios instance with base URL
+const apiClient = axios.create({
+  baseURL: 'http://localhost:8081',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
+// Add request interceptor to include token
+apiClient.interceptors.request.use(
+  config => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      try {
+        const userData = JSON.parse(user);
+        if (userData && userData.token) {
+          config.headers['Authorization'] = `Bearer ${userData.token}`;
+        }
+      } catch (e) {
+        console.error('Error parsing user data from localStorage', e);
+      }
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor to handle common errors
+apiClient.interceptors.response.use(
+  response => response,
+  error => {
+    const originalRequest = error.config;
+    
+    // Handle 401 Unauthorized errors
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      // Could add token refresh logic here
+      
+      // For now, clear user data and redirect to login
+      if (window.location.pathname !== '/login') {
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+export default apiClient; 

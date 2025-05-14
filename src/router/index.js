@@ -12,6 +12,7 @@ import RegisterView from "@/views/RegisterView.vue"
 import CreateJobPost from "@/views/CreateJobPost.vue"
 import ApplicationManagement from "@/views/ApplicationManagement.vue"
 import ProfilePage from "@/views/ProfilePage.vue"
+import UserProfileView from "@/views/UserProfileView.vue"
 import AppointmentManagement from "@/views/AppointmentManagement.vue"
 import ChatPage from "@/views/ChatPage.vue"
 import ReviewsPage from "@/views/ReviewsPage.vue"
@@ -70,6 +71,12 @@ const router = createRouter({
       name: "profile",
       component: ProfilePage,
       meta: { requiresAuth: true, title: "Hồ sơ cá nhân" },
+    },
+    {
+      path: "/profile/:userId",
+      name: "user-profile",
+      component: UserProfileView,
+      meta: { title: "Hồ sơ người dùng" },
     },
     {
       path: "/appointments",
