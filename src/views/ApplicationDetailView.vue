@@ -341,6 +341,34 @@
         </div>
       </div>
     </div>
+
+    <!-- Success Notification Modal - Moved outside to ensure it's always in the DOM -->
+    <div v-if="showSuccessModal" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
+      <div class="relative z-10 bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+        <button class="absolute top-4 right-4 text-gray-400 hover:text-gray-500" @click="closeSuccessModal">
+          <X size="20" />
+        </button>
+        <div class="flex flex-col items-center text-center mb-6">
+          <CheckCircle class="text-success h-16 w-16 mb-4" />
+          <h2 class="text-xl font-semibold text-gray-900 mb-2">
+            Thành công!
+          </h2>
+          <p class="text-gray-700">
+            {{ successMessage }}
+          </p>
+        </div>
+        <div class="flex justify-center">
+          <BaseButton 
+            variant="primary" 
+            class="bg-gray-900 text-white hover:bg-gray-800"
+            @click="redirectToHome"
+          >
+            Quay về trang chủ
+          </BaseButton>
+        </div>
+      </div>
+    </div>
   </MainLayout>
 </template>
 
@@ -368,6 +396,13 @@ const actionType = ref('accept'); // 'accept' or 'reject'
 const showActionModal = ref(false);
 const actionMessage = ref('');
 const isProcessing = ref(false);
+
+// Success modal state
+const showSuccessModal = ref(false);
+const successMessage = ref('');
+
+// For debugging
+console.log('Initial showSuccessModal state:', showSuccessModal.value);
 
 // Image viewer state
 const showImageViewer = ref(false);
@@ -469,7 +504,7 @@ const fetchApplicationDetail = async () => {
     }
     
     // Make API request with token
-    const response = await axios.get(`http://localhost:8082/posting/api/applications/${applicationId}`, {
+    const response = await axios.get(`${window.API_URL}${window.POSTING_API_PATH}/applications/${applicationId}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -511,8 +546,21 @@ const closeActionModal = () => {
   document.body.style.overflow = '';
 };
 
+const closeSuccessModal = () => {
+  showSuccessModal.value = false;
+  document.body.style.overflow = '';
+};
+
+const showSuccessNotification = (message) => {
+  successMessage.value = message;
+  showSuccessModal.value = true;
+  document.body.style.overflow = 'hidden';
+  console.log('Success modal activated:', showSuccessModal.value);
+};
+
 const confirmAction = async () => {
   isProcessing.value = true;
+  console.log('Starting confirmAction with type:', actionType.value);
 
   try {
     // Get token from localStorage
@@ -524,11 +572,13 @@ const confirmAction = async () => {
     
     // Determine API endpoint and action based on actionType
     const endpoint = actionType.value === 'accept' 
-      ? `http://localhost:8082/posting/api/applications/${applicationId}/accept`
-      : `http://localhost:8082/posting/api/applications/${applicationId}/reject`;
+      ? `${window.API_URL}${window.POSTING_API_PATH}/applications/${applicationId}/accept`
+      : `${window.API_URL}${window.POSTING_API_PATH}/applications/${applicationId}/reject`;
+    
+    console.log('Making API request to:', endpoint);
     
     // Make API request with token
-    await axios.post(endpoint, 
+    const response = await axios.post(endpoint, 
       { message: actionMessage.value || null }, 
       {
         headers: {
@@ -537,6 +587,8 @@ const confirmAction = async () => {
         }
       }
     );
+    
+    console.log('API response:', response.data);
     
     // Update local data
     application.value.status = actionType.value === 'accept' ? 'ACCEPTED' : 'REJECTED';
@@ -549,20 +601,31 @@ const confirmAction = async () => {
       application.value.rejectedAt = new Date().toISOString();
     }
     
-    // Show success message
-    alert(actionType.value === 'accept' 
-      ? 'Đã chấp nhận đơn ứng tuyển thành công' 
-      : 'Đã từ chối đơn ứng tuyển thành công');
-    
-    // Close modal
+    // Close action modal
     closeActionModal();
+    
+    // Show success modal if accepting
+    if (actionType.value === 'accept') {
+      // Use the new method to show success notification
+      showSuccessNotification('Đã chấp nhận đơn ứng tuyển thành công!');
+    } else {
+      // Show alert for rejection
+      alert('Đã từ chối đơn ứng tuyển thành công');
+    }
     
   } catch (error) {
     console.error('Error processing application:', error);
+    console.error('Error details:', error.response?.data || error.message);
     alert('Có lỗi xảy ra. Vui lòng thử lại sau.');
+    closeActionModal();
   } finally {
     isProcessing.value = false;
   }
+};
+
+const redirectToHome = () => {
+  console.log('Redirecting to home');
+  router.push('/');
 };
 
 // Image viewer methods

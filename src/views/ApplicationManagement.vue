@@ -456,7 +456,7 @@
       }
       
       // Make API request with token
-      const response = await axios.get('http://localhost:8082/posting/api/applications/authored', {
+      const response = await axios.get(`${window.API_URL}${window.POSTING_API_PATH}/applications/authored`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -514,8 +514,8 @@
       
       // Determine API endpoint and action based on actionType
       const endpoint = actionType.value === 'accept' 
-        ? `http://localhost:8082/posting/api/applications/${selectedApplication.value.id}/accept`
-        : `http://localhost:8082/posting/api/applications/${selectedApplication.value.id}/reject`;
+        ? `${window.API_URL}${window.POSTING_API_PATH}/applications/${selectedApplication.value.id}/accept`
+        : `${window.API_URL}${window.POSTING_API_PATH}/applications/${selectedApplication.value.id}/reject`;
       
       // Make API request with token
       await axios.post(endpoint, 

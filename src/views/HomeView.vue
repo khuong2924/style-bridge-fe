@@ -1495,7 +1495,10 @@
   const fetchPostsWithFilter = async (filter = 'all') => {
     isLoading.value = true;
     try {
-      let url = 'http://localhost:8082/posting/api/posts?page=0&size=10';
+      // Sử dụng biến môi trường thay vì URL cứng
+      const baseUrl = window.API_URL || 'http://localhost';
+      const postingPath = window.POSTING_API_PATH || '/posting';
+      let url = `${baseUrl}${postingPath}/api/posts?page=0&size=10`;
       
       // Add filter parameter if necessary
       if (filter !== 'all' && filter !== 'jobs') {
@@ -1548,7 +1551,10 @@
           // Fetch user info if posterUserId is available
           if (post.posterUserId) {
             try {
-              const userResponse = await axios.get(`http://localhost:8081/auth/users/${post.posterUserId}`);
+              // Sử dụng biến môi trường cho auth service
+              const baseUrl = window.API_URL || 'http://localhost';
+              const authPath = window.IDENTITY_API_PATH || '/auth';
+              const userResponse = await axios.get(`${baseUrl}${authPath}/users/${post.posterUserId}`);
               const userData = userResponse.data;
               
               authorInfo = {
@@ -1630,7 +1636,10 @@
     if (currentPage.value < totalPages.value - 1) {
       isLoading.value = true;
       try {
-        let url = `http://localhost:8082/posting/api/posts?page=${currentPage.value + 1}&size=10`;
+        // Sử dụng biến môi trường thay vì URL cứng
+        const baseUrl = window.API_URL || 'http://localhost';
+        const postingPath = window.POSTING_API_PATH || '/posting';
+        let url = `${baseUrl}${postingPath}/api/posts?page=${currentPage.value + 1}&size=10`;
         
         // Add filter parameter if necessary
         if (activeFilter.value !== 'all' && activeFilter.value !== 'jobs') {
@@ -1684,7 +1693,10 @@
             // Fetch user info if posterUserId is available
             if (post.posterUserId) {
               try {
-                const userResponse = await axios.get(`http://localhost:8081/auth/users/${post.posterUserId}`);
+                // Sử dụng biến môi trường cho auth service
+                const baseUrl = window.API_URL || 'http://localhost';
+                const authPath = window.IDENTITY_API_PATH || '/auth';
+                const userResponse = await axios.get(`${baseUrl}${authPath}/users/${post.posterUserId}`);
                 const userData = userResponse.data;
                 
                 authorInfo = {
@@ -2172,7 +2184,7 @@
       axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
       
       // Make a direct fetch request to get better control and debugging
-      const response = await fetch('http://localhost:8082/posting/api/applications/with-images', {
+      const response = await fetch(`${window.API_URL}${window.POSTING_API_PATH}/applications/with-images`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authToken}`
@@ -2518,7 +2530,7 @@
       // Use both axios and fetch for comparison
       try {
         console.log('[FETCH APPLICATIONS] Attempting direct fetch call first');
-        const fetchResponse = await fetch('http://localhost:8082/posting/api/applications/authored', {
+        const fetchResponse = await fetch(`${window.API_URL}${window.POSTING_API_PATH}/applications/authored`, {
           method: 'GET',
           headers: {
             'Authorization': authHeader,
@@ -2545,7 +2557,7 @@
       
       // Make the axios request
       console.log('[FETCH APPLICATIONS] Now trying with axios');
-      const response = await axios.get('http://localhost:8082/posting/api/applications/authored', {
+      const response = await axios.get(`${window.API_URL}${window.POSTING_API_PATH}/applications/authored`, {
         headers: {
           'Authorization': authHeader
         }
@@ -2599,7 +2611,7 @@
           try {
             console.log('[FETCH APPLICATIONS] Fetching user info for applicant ID:', app.applicantUserId);
             
-            const userResponse = await axios.get(`http://localhost:8081/auth/users/${app.applicantUserId}`, {
+            const userResponse = await axios.get(`${window.API_URL}${window.IDENTITY_API_PATH}/users/${app.applicantUserId}`, {
               headers: {
                 'Authorization': authHeader
               }
@@ -2770,7 +2782,7 @@
     try {
       // This is a fallback in case we don't have any posts yet
       // In most cases, locations will be extracted from posts
-      const response = await axios.get('http://localhost:8082/posting/api/locations');
+      const response = await axios.get(`${window.API_URL}${window.POSTING_API_PATH}/locations`);
       if (response.data && Array.isArray(response.data)) {
         const apiLocations = response.data.map(location => 
           typeof location === 'string' ? location : location.name || location.district || ''

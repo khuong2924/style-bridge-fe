@@ -465,10 +465,10 @@ const hireForm = ref({
 
 // Fetch user profile
 const fetchUserProfile = async () => {
-  isLoading.value = true;
   try {
+    isLoading.value = true;
     const userId = route.params.userId;
-    const response = await axios.get(`http://localhost:8081/auth/users/${userId}`);
+    const response = await axios.get(`${window.API_URL}${window.IDENTITY_API_PATH}/users/${userId}`);
     
     // Map API response to our profile structure
     const userData = response.data;
@@ -568,9 +568,9 @@ const fetchUserProfile = async () => {
     };
     
     // Customize the bio based on gender
-    if (userData.gender === 'Male') {
+    if (userProfile.value.gender === 'Male') {
       userProfile.value.bio = userProfile.value.bio.replace('Tôi là chuyên gia', 'Tôi là chuyên gia nam');
-    } else if (userData.gender === 'Female') {
+    } else if (userProfile.value.gender === 'Female') {
       userProfile.value.bio = userProfile.value.bio.replace('Tôi là chuyên gia', 'Tôi là chuyên gia nữ');
     }
     

@@ -636,10 +636,10 @@
       });
       
       // Make API request with bearer token
-      const response = await axios.post('http://localhost:8082/posting/api/posts/with-images', formData, {
+      const response = await axios.post(`${window.API_URL}${window.POSTING_API_PATH}/posts/with-images`, formData, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
+          'Authorization': `Bearer ${authStore.token}`,
+          // Don't set Content-Type when using FormData
         }
       });
       
