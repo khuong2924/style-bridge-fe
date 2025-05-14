@@ -6,7 +6,7 @@
           <!-- Cột Trái - Thông tin người dùng và menu -->
           <div class="lg:col-span-1 space-y-6">
             <!-- Thông tin người dùng -->
-            <BaseCard v-if="authStore.isAuthenticated" class="motion-scale-in-[0.95] motion-delay-[0.21s]/scale motion-duration-[0.53s]/scale motion-ease-spring-bouncier">
+            <BaseCard class="motion-scale-in-[0.95] motion-delay-[0.21s]/scale motion-duration-[0.53s]/scale motion-ease-spring-bouncier">
               <div class="flex items-center">
                 <div class="h-16 w-16 rounded-full bg-gray-100 overflow-hidden mr-4 group relative">
                   <img 
@@ -17,13 +17,13 @@
                   <div class="absolute inset-0 bg-gradient-to-t from-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
                 <div>
-                  <h3 class="text-lg font-semibold text-gray-900">{{ authStore.userFullName }}</h3>
-                  <p class="text-sm text-primary">{{ authStore.user?.role === 'artist' ? 'Nghệ sĩ trang điểm' : 'Nguyễn Thị A' }}</p>
+                  <h3 class="text-lg font-semibold text-gray-900">Nguyễn Thị A</h3>
+                  <p class="text-sm text-primary">Nghệ sĩ trang điểm</p>
                   <BaseButton 
                     variant="ghost" 
                     size="sm"
                     class="mt-1 px-0 text-primary-dark hover:text-primary transition-colors"
-                    @click="$router.push('/profile')"
+                    @click="router.push('/profile')"
                   >
                     Xem hồ sơ
                   </BaseButton>
@@ -34,7 +34,7 @@
             <!-- Menu nhanh -->
             <BaseCard>
               <template #header>
-                <h3 class="text-lg font-semibold text-gray-900">Menu nhanh</h3>
+             
               </template>
               
               <div class="space-y-0.5">
@@ -54,7 +54,7 @@
             </BaseCard>
             
             <!-- Thông báo ứng tuyển -->
-            <BaseCard v-if="authStore.isAuthenticated">
+            <BaseCard>
               <template #header>
                 <div class="flex justify-between items-center">
                   <h3 class="text-lg font-semibold text-gray-900">Thông báo ứng tuyển</h3>
@@ -62,7 +62,7 @@
                     variant="ghost" 
                     size="sm"
                     class="btn-hover-hide"
-                    @click="$router.push('/applications')"
+                    @click="handleMenuClick('/applications')"
                   >
                     Xem tất cả
                   </BaseButton>
@@ -124,11 +124,11 @@
           <!-- Cột Giữa - Đăng bài và Bảng tin -->
           <div class="lg:col-span-2 space-y-6">
             <!-- Đăng bài -->
-            <BaseCard v-if="authStore.isAuthenticated">
+            <BaseCard>
               <div class="flex items-start">
                 <div class="h-10 w-10 rounded-full bg-gray-100 overflow-hidden mr-3 flex-shrink-0">
                   <img 
-                    :src="authStore.userAvatar || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s'" 
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s" 
                     alt="User Avatar" 
                     class="h-full w-full object-cover"
                   />
@@ -136,7 +136,7 @@
                 <div class="flex-grow">
                   <div 
                     class="w-full px-4 py-3 rounded-full border border-gray-300 text-gray-500 cursor-pointer hover:bg-gray-50 transition-colors"
-                    @click="showPostModal = true"
+                    @click="handlePostClick()"
                   >
                     Bạn đang nghĩ gì?
                   </div>
@@ -144,21 +144,21 @@
                   <div class="flex mt-3 space-x-2">
                     <button 
                       class="flex items-center px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors btn-hover-hide btn-action-primary"
-                      @click="showPostModal = true"
+                      @click="handlePostClick()"
                     >
                       <Image size="18" class="mr-2 text-primary" />
                       <span class="text-sm text-gray-700">Hình ảnh</span>
                     </button>
                     <button 
                       class="flex items-center px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors btn-hover-hide btn-action-success"
-                      @click="showPostModal = true"
+                      @click="handlePostClick()"
                     >
                       <Video size="18" class="mr-2 text-success" />
                       <span class="text-sm text-gray-700">Video</span>
                     </button>
                     <button 
                       class="flex items-center px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors btn-hover-hide btn-action-warning"
-                      @click="$router.push('/jobs/create')"
+                      @click="handleJobsClick()"
                     >
                       <Briefcase size="18" class="mr-2 text-warning" />
                       <span class="text-sm text-gray-700">Đăng việc</span>
@@ -224,7 +224,7 @@
               <BaseButton 
                 variant="primary" 
                 class="btn-hover-hide"
-                @click="showPostModal = true"
+                @click="handlePostClick()"
               >
                 Đăng bài ngay
               </BaseButton>
@@ -319,7 +319,7 @@
                   <div 
                     v-if="post.job"
                     class="border border-gray-200 rounded-lg p-4 mb-3 hover:bg-gray-50 transition-colors cursor-pointer"
-                    @click="$router.push(`/jobs/${post.job.id}`)"
+                    @click="handleMenuClick(`/jobs/${post.job.id}`)"
                   >
                     <h4 class="font-medium text-gray-900 mb-2">{{ post.job.title }}</h4>
                     <div class="flex flex-wrap gap-y-2 gap-x-4 text-sm text-gray-600">
@@ -348,8 +348,8 @@
                       <div class="flex items-center">
                         <Heart 
                           size="16" 
-                          :class="post.liked ? 'text-error fill-error' : 'text-gray-400'"
-                          class="mr-1 cursor-pointer"
+                          :class="post.liked ? 'text-error heart-filled' : 'text-gray-400'"
+                          class="mr-1 cursor-pointer heart-animation"
                           @click="toggleLike(post)"
                         />
                         <span>{{ post.likes }}</span>
@@ -374,10 +374,10 @@
                     >
                       <Heart 
                         size="18" 
-                        :class="post.liked ? 'text-error fill-error' : 'text-gray-500'"
-                        class="mr-2"
+                        :class="post.liked ? 'text-error heart-filled' : 'text-gray-500'"
+                        class="mr-2 heart-animation"
                       />
-                      <span class="text-sm text-gray-700">Thích</span>
+                      <span class="text-sm" :class="post.liked ? 'text-error' : 'text-gray-700'">Thích</span>
                     </button>
                     
                     <button 
@@ -399,7 +399,7 @@
                 </div>
                 
                 <!-- Comments -->
-                <div v-if="post.showComments" class="px-4 py-3 border-t border-gray-100 bg-gray-50">
+                <div v-if="post.showComments" class="px-4 py-3 border-t border-gray-100 bg-gray-50/80 backdrop-blur-sm rounded-b-xl">
                   <!-- Comment list -->
                   <div v-if="post.comments.length > 0" class="space-y-3 mb-3">
                     <div 
@@ -414,12 +414,12 @@
                           class="h-full w-full object-cover"
                         />
                       </div>
-                      <div class="bg-white rounded-lg px-3 py-2 shadow-sm">
+                      <div class="bg-white rounded-lg px-3 py-2 shadow-sm max-w-[85%]">
                         <div class="flex items-center mb-1">
                           <h4 class="text-xs font-medium text-gray-900">{{ comment.author.name }}</h4>
                           <span class="text-xs text-gray-500 ml-2">{{ formatTime(comment.timestamp) }}</span>
                         </div>
-                        <p class="text-sm text-gray-700">{{ comment.content }}</p>
+                        <p class="text-sm text-gray-700 break-words">{{ comment.content }}</p>
                       </div>
                     </div>
                   </div>
@@ -428,7 +428,7 @@
                   <div class="flex items-start">
                     <div class="h-8 w-8 rounded-full bg-gray-100 overflow-hidden mr-2 flex-shrink-0">
                       <img 
-                        :src="authStore.userAvatar || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s'" 
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s" 
                         alt="User Avatar" 
                         class="h-full w-full object-cover"
                       />
@@ -439,14 +439,14 @@
                         v-model="commentText[post.id]"
                         type="text" 
                         placeholder="Viết bình luận..." 
-                        class="w-full px-3 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent pr-10"
+                        class="w-full px-3 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent pr-12"
                         @keyup.enter="addComment(post)"
                       />
                       <button 
-                        class="absolute right-2 top-1/2 transform -translate-y-1/2 text-primary btn-hover-hide btn-send"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary hover:text-primary-dark transition-colors"
                         @click="addComment(post)"
                       >
-                        <Send size="16" />
+                        <Send size="18" />
                       </button>
                     </div>
                   </div>
@@ -684,6 +684,7 @@
   
   <script setup>
   import { ref, computed, onMounted, reactive } from 'vue';
+  import { useRouter } from 'vue-router';
   import { 
     X, LoaderCircle, Image, Video, Briefcase, MapPin, Calendar, DollarSign,
     Heart, MessageSquare, Share2, MoreVertical, Send, Smile, Check,
@@ -697,6 +698,9 @@
   
   // Auth store
   const authStore = useAuthStore();
+  
+  // Add this line:
+  const router = useRouter();
   
   // State
   const isLoading = ref(true);
@@ -833,13 +837,20 @@
   };
   
   const toggleLike = (post) => {
-    if (!authStore.isAuthenticated) {
-      alert('Vui lòng đăng nhập để thích bài viết');
-      return;
-    }
-    
+    // Bypass authentication check for UI/UX testing
     post.liked = !post.liked;
     post.likes += post.liked ? 1 : -1;
+    
+    // Add animation effect if liked
+    if (post.liked) {
+      const heartElements = document.querySelectorAll('.heart-filled');
+      heartElements.forEach(heart => {
+        heart.classList.add('animate-pulse');
+        setTimeout(() => {
+          heart.classList.remove('animate-pulse');
+        }, 1000);
+      });
+    }
   };
   
   const focusComment = (postId) => {
@@ -857,10 +868,7 @@
   };
   
   const addComment = (post) => {
-    if (!authStore.isAuthenticated) {
-      alert('Vui lòng đăng nhập để bình luận');
-      return;
-    }
+    // Bypass authentication check for UI/UX testing
     
     const text = commentText[post.id];
     if (!text || !text.trim()) return;
@@ -870,8 +878,8 @@
       content: text,
       timestamp: new Date(),
       author: {
-        name: authStore.userFullName,
-        avatar: authStore.userAvatar
+        name: "Nguyễn Thị A",
+        avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s"
       }
     });
     
@@ -902,15 +910,13 @@
     }
   };
   
+  
   const removeMedia = (index) => {
     newPostMedia.value.splice(index, 1);
   };
   
   const submitPost = async () => {
-    if (!authStore.isAuthenticated) {
-      alert('Vui lòng đăng nhập để đăng bài');
-      return;
-    }
+    // Bypass authentication check for UI/UX testing
     
     if (!newPostContent.value.trim() && newPostMedia.value.length === 0) return;
     
@@ -940,8 +946,8 @@
         content: newPostContent.value,
         timestamp: new Date(),
         author: {
-          name: authStore.userFullName,
-          avatar: authStore.userAvatar
+          name: "Người dùng test",
+          avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s"
         },
         media,
         tags: hashtags,
@@ -1017,6 +1023,39 @@
     if (filterValue === 'jobs') return posts.value.filter(post => post.job).length;
     if (filterValue === 'trending') return posts.value.filter(post => post.trending).length;
     return posts.value.filter(post => post.tags && post.tags.includes(filterValue)).length;
+  };
+  
+  const handlePostClick = () => {
+    // Bypass authentication check for UI/UX testing
+    showPostModal.value = true;
+  };
+  
+  const handleJobsClick = () => {
+    // Bypass authentication check for UI/UX testing
+    handleMenuClick('/jobs/create');
+  };
+  
+  const handleMenuClick = (path) => {
+    // List of routes that should be accessible without authentication
+    const publicRoutes = ['/', '/jobs', '/help'];
+    
+    // Check if the path is a protected route
+    const isProtectedRoute = !publicRoutes.some(route => path.startsWith(route));
+    
+    // For testing UI/UX, we'll just navigate to all routes
+    // In a real app, you would check authentication here
+    router.push(path);
+    
+    // Uncomment this in production:
+    /*
+    if (isProtectedRoute && !authStore.isAuthenticated) {
+      // Show login prompt or redirect to login
+      alert('Vui lòng đăng nhập để truy cập trang này');
+      router.push('/login');
+    } else {
+      router.push(path);
+    }
+    */
   };
   
   // Fetch data (mock)
@@ -1368,12 +1407,12 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.2); }
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.3); }
 }
 
 .animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .active-filter {
@@ -1410,5 +1449,20 @@
 .filter-container {
   padding-bottom: 5px;
   mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+}
+
+.heart-filled {
+  fill: #FF4757;
+  color: #FF4757 !important;
+  filter: drop-shadow(0 0 1px rgba(255, 71, 87, 0.3));
+  transform: scale(1.1);
+}
+
+.heart-animation {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.heart-animation:hover {
+  transform: scale(1.2);
 }
 </style>

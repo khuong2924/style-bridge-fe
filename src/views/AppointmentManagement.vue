@@ -887,32 +887,8 @@
       
       // Mock data
       appointments.value = [
-        {
-          id: 1,
-          title: 'Trang điểm cô dâu - Đám cưới Ngọc Anh',
-          startTime: new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000 + 9 * 60 * 60 * 1000),
-          endTime: new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000),
-          location: 'Studio ABC, Quận 1, TP.HCM',
-          status: 'confirmed',
-          notes: 'Cô dâu yêu cầu phong cách trang điểm tự nhiên, nhẹ nhàng',
-          client: {
-            name: 'Ngọc Anh',
-            phone: '0912345678'
-          }
-        },
-        {
-          id: 2,
-          title: 'Trang điểm dự tiệc - Sinh nhật Minh Tâm',
-          startTime: new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000 + 18 * 60 * 60 * 1000),
-          endTime: new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000 + 20 * 60 * 60 * 1000),
-          location: 'Nhà riêng khách hàng, Quận 7, TP.HCM',
-          status: 'pending',
-          notes: '',
-          client: {
-            name: 'Minh Tâm',
-            phone: '0987654321'
-          }
-        },
+        
+       
         {
           id: 3,
           title: 'Trang điểm chụp ảnh kỷ yếu',
