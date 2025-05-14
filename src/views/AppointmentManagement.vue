@@ -1,59 +1,61 @@
 <template>
     <MainLayout>
-      <div class="container py-8">
-        <div class="text-center mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">Quản lý lịch hẹn</h1>
+      <div class="container py-10 max-w-6xl mx-auto px-4">
+        <div class="text-center mb-10">
+          <h1 class="text-4xl font-bold text-gray-900 mb-3">Quản lý lịch hẹn</h1>
           <p class="text-lg text-gray-600">
             Theo dõi và quản lý các lịch hẹn của bạn
           </p>
         </div>
         
-        <div class="flex flex-wrap border-b border-gray-200 mb-6">
+        <div class="flex flex-wrap border-b border-gray-200 mb-8">
           <button 
             v-for="tab in tabs" 
             :key="tab.value"
-            class="flex items-center px-4 py-2 text-sm font-medium mr-4 -mb-px transition-colors"
+            class="flex items-center px-5 py-3 text-sm font-medium mr-6 -mb-px transition-all duration-200"
             :class="activeTab === tab.value 
-              ? 'text-primary border-b-2 border-primary' 
-              : 'text-gray-500 hover:text-gray-700 hover:border-gray-300 border-b-2 border-transparent'"
+              ? 'text-black border-b-2 border-black font-semibold' 
+              : 'text-gray-500 hover:text-gray-800 hover:border-gray-300 border-b-2 border-transparent'"
             @click="changeTab(tab.value)"
           >
             <component :is="tab.icon" class="mr-2" size="18" />
             <span>{{ tab.label }}</span>
-            <span class="ml-2 bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs">
+            <span class="ml-2 bg-gray-100 text-gray-700 px-2.5 py-0.5 rounded-full text-xs font-medium">
               {{ getAppointmentCount(tab.value) }}
             </span>
           </button>
         </div>
         
         <!-- Calendar View -->
-        <div class="mb-6">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-semibold text-gray-900">Lịch của tôi</h2>
-            <div class="flex items-center space-x-2">
+        <div class="mb-10">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">Lịch của tôi</h2>
+            <div class="flex items-center space-x-4">
               <BaseButton 
                 variant="outline" 
                 size="sm"
                 icon="ChevronLeft"
+                class="hover:bg-gray-100"
                 @click="prevMonth"
               />
-              <span class="text-lg font-medium">{{ currentMonthName }} {{ currentYear }}</span>
+              <span class="text-lg font-semibold text-gray-900 min-w-32 text-center">{{ currentMonthName }} {{ currentYear }}</span>
               <BaseButton 
                 variant="outline" 
                 size="sm"
                 icon="ChevronRight"
+                class="hover:bg-gray-100"
                 @click="nextMonth"
               />
             </div>
           </div>
           
-          <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <!-- Calendar Header -->
-            <div class="grid grid-cols-7 border-b border-gray-200">
+            <div class="grid grid-cols-7 border-b border-gray-200 bg-gray-50">
               <div 
                 v-for="day in weekDays" 
                 :key="day"
-                class="py-2 text-center text-sm font-medium text-gray-700"
+                class="py-3 text-center text-sm font-semibold text-gray-700"
               >
                 {{ day }}
               </div>
@@ -64,19 +66,19 @@
               <div 
                 v-for="(day, index) in calendarDays" 
                 :key="index"
-                class="min-h-[100px] border-b border-r border-gray-200 last:border-r-0 p-1 relative"
+                class="min-h-[110px] border-b border-r border-gray-200 last:border-r-0 p-2 relative transition-colors duration-200"
                 :class="[
-                  day.isCurrentMonth ? 'bg-white' : 'bg-gray-50',
-                  day.isToday ? 'bg-primary/5' : '',
+                  day.isCurrentMonth ? 'bg-white hover:bg-gray-50' : 'bg-gray-50',
+                  day.isToday ? 'bg-black/5 ring-1 ring-inset ring-black/10' : '',
                   index % 7 === 6 ? 'border-r-0' : '',
                   Math.floor(index / 7) === Math.floor(calendarDays.length / 7) - 1 ? 'border-b-0' : ''
                 ]"
               >
                 <div class="flex justify-between items-start">
                   <span 
-                    class="inline-flex items-center justify-center w-6 h-6 text-sm rounded-full"
+                    class="inline-flex items-center justify-center w-7 h-7 text-sm rounded-full"
                     :class="[
-                      day.isToday ? 'bg-primary text-white font-medium' : 'text-gray-700',
+                      day.isToday ? 'bg-black text-white font-medium' : 'text-gray-700',
                       !day.isCurrentMonth ? 'text-gray-400' : ''
                     ]"
                   >
@@ -85,7 +87,7 @@
                   
                   <button 
                     v-if="day.isCurrentMonth"
-                    class="text-gray-400 hover:text-primary p-1"
+                    class="text-gray-400 hover:text-black p-1 rounded-full hover:bg-gray-100 transition-colors duration-200"
                     @click="createAppointment(day.date)"
                   >
                     <Plus size="14" />
@@ -96,7 +98,7 @@
                   <div 
                     v-for="appointment in getAppointmentsForDay(day.date)" 
                     :key="appointment.id"
-                    class="text-xs p-1 rounded truncate cursor-pointer"
+                    class="text-xs p-1.5 rounded-md truncate cursor-pointer hover:opacity-80 transition-opacity duration-200 shadow-sm"
                     :class="getAppointmentClasses(appointment)"
                     @click="viewAppointment(appointment)"
                   >
@@ -109,20 +111,23 @@
         </div>
         
         <!-- Loading State -->
-        <div v-if="isLoading" class="flex flex-col items-center justify-center py-16">
-          <LoaderCircle class="animate-spin text-primary h-12 w-12 mb-4" />
-          <p class="text-gray-600">Đang tải dữ liệu...</p>
+        <div v-if="isLoading" class="flex flex-col items-center justify-center py-20">
+          <LoaderCircle class="animate-spin text-black h-14 w-14 mb-6" />
+          <p class="text-gray-600 font-medium">Đang tải dữ liệu...</p>
         </div>
         
         <!-- Empty State -->
-        <div v-else-if="filteredAppointments.length === 0" class="flex flex-col items-center justify-center py-16 text-center">
-          <Calendar class="text-gray-300 h-16 w-16 mb-4" />
-          <h2 class="text-xl font-semibold text-gray-900 mb-2">Không có lịch hẹn</h2>
-          <p class="text-gray-600 max-w-md mb-6">
+        <div v-else-if="filteredAppointments.length === 0" class="flex flex-col items-center justify-center py-20 text-center">
+          <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+            <Calendar class="text-gray-400 h-10 w-10" />
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-3">Không có lịch hẹn</h2>
+          <p class="text-gray-600 max-w-md mb-8">
             {{ getEmptyMessage() }}
           </p>
           <BaseButton 
             variant="primary" 
+            class="bg-black hover:bg-gray-800 text-white"
             @click="createAppointment(new Date())"
           >
             Tạo lịch hẹn mới
@@ -130,11 +135,11 @@
         </div>
         
         <!-- Appointments List -->
-        <div v-else class="space-y-4">
+        <div v-else class="space-y-6">
           <div 
             v-for="appointment in filteredAppointments" 
             :key="appointment.id"
-            class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
           >
             <div class="p-6">
               <div class="flex justify-between items-start mb-4">
@@ -148,13 +153,13 @@
                 
                 <div class="flex items-center space-x-2">
                   <button 
-                    class="text-gray-400 hover:text-gray-600 p-1"
+                    class="text-gray-400 hover:text-gray-800 p-1.5 rounded-full hover:bg-gray-100 transition-colors duration-200"
                     @click="editAppointment(appointment)"
                   >
                     <Edit size="16" />
                   </button>
                   <button 
-                    class="text-gray-400 hover:text-error p-1"
+                    class="text-gray-400 hover:text-gray-800 p-1.5 rounded-full hover:bg-gray-100 transition-colors duration-200"
                     @click="confirmDeleteAppointment(appointment)"
                   >
                     <Trash2 size="16" />
@@ -162,39 +167,40 @@
                 </div>
               </div>
               
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ appointment.title }}</h3>
+              <h3 class="text-xl font-bold text-gray-900 mb-3">{{ appointment.title }}</h3>
               
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6 text-sm text-gray-600 mb-6">
                 <div class="flex items-center">
-                  <Calendar size="14" class="mr-1.5 text-gray-400" />
+                  <Calendar size="16" class="mr-2 text-gray-500" />
                   <span>{{ formatDate(appointment.startTime) }}</span>
                 </div>
                 
                 <div class="flex items-center">
-                  <Clock size="14" class="mr-1.5 text-gray-400" />
+                  <Clock size="16" class="mr-2 text-gray-500" />
                   <span>{{ formatTime(appointment.startTime) }} - {{ formatTime(appointment.endTime) }}</span>
                 </div>
                 
                 <div class="flex items-center">
-                  <MapPin size="14" class="mr-1.5 text-gray-400" />
+                  <MapPin size="16" class="mr-2 text-gray-500" />
                   <span>{{ appointment.location }}</span>
                 </div>
                 
                 <div class="flex items-center">
-                  <User size="14" class="mr-1.5 text-gray-400" />
+                  <User size="16" class="mr-2 text-gray-500" />
                   <span>{{ appointment.client.name }}</span>
                 </div>
               </div>
               
-              <div v-if="appointment.notes" class="mb-4 p-4 bg-gray-50 rounded-md">
-                <h4 class="text-sm font-medium text-gray-700 mb-2">Ghi chú:</h4>
+              <div v-if="appointment.notes" class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <h4 class="text-sm font-semibold text-gray-800 mb-2">Ghi chú:</h4>
                 <p class="text-sm text-gray-600">{{ appointment.notes }}</p>
               </div>
               
-              <div class="flex justify-end gap-3">
+              <div class="flex justify-end gap-3 pt-2">
                 <BaseButton 
                   variant="outline" 
                   size="sm"
+                  class="border-gray-300 hover:bg-gray-50"
                   v-if="appointment.status === 'pending'"
                   @click="updateAppointmentStatus(appointment.id, 'cancelled')"
                 >
@@ -204,6 +210,7 @@
                 <BaseButton 
                   variant="outline" 
                   size="sm"
+                  class="border-gray-300 hover:bg-gray-50"
                   v-if="appointment.status === 'pending'"
                   @click="updateAppointmentStatus(appointment.id, 'confirmed')"
                 >
@@ -213,6 +220,7 @@
                 <BaseButton 
                   variant="primary" 
                   size="sm"
+                  class="bg-black hover:bg-gray-800 text-white"
                   @click="viewAppointment(appointment)"
                 >
                   Xem chi tiết
@@ -224,13 +232,13 @@
         
         <!-- Appointment Modal -->
         <div v-if="showAppointmentModal" class="fixed inset-0 z-50 flex items-center justify-center">
-          <div class="absolute inset-0 bg-black bg-opacity-50" @click="closeAppointmentModal"></div>
-          <div class="relative z-10 bg-white rounded-lg shadow-xl w-full max-w-md">
+          <div class="absolute inset-0 bg-black bg-opacity-60" @click="closeAppointmentModal"></div>
+          <div class="relative z-10 bg-white rounded-xl shadow-2xl w-full max-w-md">
             <div class="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 class="text-xl font-semibold text-gray-900">
+              <h2 class="text-xl font-bold text-gray-900">
                 {{ isEditingAppointment ? 'Chỉnh sửa lịch hẹn' : 'Tạo lịch hẹn mới' }}
               </h2>
-              <button class="text-gray-400 hover:text-gray-500" @click="closeAppointmentModal">
+              <button class="text-gray-400 hover:text-black p-1.5 rounded-full hover:bg-gray-100 transition-colors duration-200" @click="closeAppointmentModal">
                 <X size="20" />
               </button>
             </div>
@@ -239,24 +247,26 @@
               <form @submit.prevent="saveAppointment" class="space-y-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Tiêu đề <span class="text-error">*</span>
+                    Tiêu đề <span class="text-gray-900">*</span>
                   </label>
                   <BaseInput 
                     v-model="appointmentForm.title" 
                     placeholder="Nhập tiêu đề lịch hẹn"
                     :error="appointmentErrors.title"
+                    class="focus:border-black focus:ring-black/10"
                   />
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                      Ngày <span class="text-error">*</span>
+                      Ngày <span class="text-gray-900">*</span>
                     </label>
                     <BaseInput 
                       v-model="appointmentForm.date" 
                       type="date"
                       :error="appointmentErrors.date"
+                      class="focus:border-black focus:ring-black/10"
                     />
                   </div>
                   
@@ -266,8 +276,10 @@
                     </label>
                     <select 
                       v-model="appointmentForm.status"
-                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 focus:ring-opacity-50"
+                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring focus:ring-black/10 focus:ring-opacity-50"
                     >
+                      <option value="pending">Chờ xác nhận</option>
+                      <option value="confirmed">Đã xác nhận</option>
                       <option value="completed">Đã hoàn thành</option>
                       <option value="cancelled">Đã hủy</option>
                     </select>
@@ -277,46 +289,50 @@
                 <div class="grid grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                      Giờ bắt đầu <span class="text-error">*</span>
+                      Giờ bắt đầu <span class="text-gray-900">*</span>
                     </label>
                     <BaseInput 
                       v-model="appointmentForm.startTime" 
                       type="time"
                       :error="appointmentErrors.startTime"
+                      class="focus:border-black focus:ring-black/10"
                     />
                   </div>
                   
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                      Giờ kết thúc <span class="text-error">*</span>
+                      Giờ kết thúc <span class="text-gray-900">*</span>
                     </label>
                     <BaseInput 
                       v-model="appointmentForm.endTime" 
                       type="time"
                       :error="appointmentErrors.endTime"
+                      class="focus:border-black focus:ring-black/10"
                     />
                   </div>
                 </div>
                 
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Địa điểm <span class="text-error">*</span>
+                    Địa điểm <span class="text-gray-900">*</span>
                   </label>
                   <BaseInput 
                     v-model="appointmentForm.location" 
                     placeholder="Nhập địa điểm"
                     :error="appointmentErrors.location"
+                    class="focus:border-black focus:ring-black/10"
                   />
                 </div>
                 
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Khách hàng <span class="text-error">*</span>
+                    Khách hàng <span class="text-gray-900">*</span>
                   </label>
                   <BaseInput 
                     v-model="appointmentForm.clientName" 
                     placeholder="Tên khách hàng"
                     :error="appointmentErrors.clientName"
+                    class="focus:border-black focus:ring-black/10"
                   />
                 </div>
                 
@@ -327,15 +343,16 @@
                   <textarea 
                     v-model="appointmentForm.notes" 
                     rows="3"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 focus:ring-opacity-50"
+                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring focus:ring-black/10 focus:ring-opacity-50"
                     placeholder="Thêm ghi chú về lịch hẹn..."
                   ></textarea>
                 </div>
                 
-                <div class="flex justify-end gap-3 pt-4">
+                <div class="flex justify-end gap-3 pt-6">
                   <BaseButton 
                     type="button"
                     variant="secondary" 
+                    class="hover:bg-gray-100"
                     @click="closeAppointmentModal"
                   >
                     Hủy
@@ -343,6 +360,7 @@
                   <BaseButton 
                     type="submit"
                     variant="primary" 
+                    class="bg-black hover:bg-gray-800 text-white"
                     :loading="isSavingAppointment"
                   >
                     Lưu
@@ -355,32 +373,34 @@
         
         <!-- Delete Confirmation Modal -->
         <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center">
-          <div class="absolute inset-0 bg-black bg-opacity-50" @click="closeDeleteModal"></div>
-          <div class="relative z-10 bg-white rounded-lg shadow-xl w-full max-w-md">
+          <div class="absolute inset-0 bg-black bg-opacity-60" @click="closeDeleteModal"></div>
+          <div class="relative z-10 bg-white rounded-xl shadow-2xl w-full max-w-md">
             <div class="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 class="text-xl font-semibold text-gray-900">Xác nhận xóa</h2>
-              <button class="text-gray-400 hover:text-gray-500" @click="closeDeleteModal">
+              <h2 class="text-xl font-bold text-gray-900">Xác nhận xóa</h2>
+              <button class="text-gray-400 hover:text-black p-1.5 rounded-full hover:bg-gray-100 transition-colors duration-200" @click="closeDeleteModal">
                 <X size="20" />
               </button>
             </div>
             
             <div class="p-6">
               <div class="flex flex-col items-center text-center mb-6">
-                <AlertTriangle class="text-warning h-12 w-12 mb-4" />
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <AlertTriangle class="text-gray-600 h-8 w-8" />
+                </div>
                 <p class="text-gray-700 mb-4">
                   Bạn có chắc chắn muốn xóa lịch hẹn này không? Hành động này không thể hoàn tác.
                 </p>
               </div>
               
-              <div class="bg-gray-50 rounded-lg p-4 mb-6">
+              <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-100">
                 <h3 class="font-medium text-gray-900 mb-2">{{ selectedAppointment?.title }}</h3>
-                <div class="space-y-1 text-sm text-gray-600">
+                <div class="space-y-2 text-sm text-gray-600">
                   <div class="flex items-center">
-                    <Calendar size="14" class="mr-2" />
+                    <Calendar size="14" class="mr-2 text-gray-500" />
                     <span>{{ selectedAppointment ? formatDate(selectedAppointment.startTime) : '' }}</span>
                   </div>
                   <div class="flex items-center">
-                    <Clock size="14" class="mr-2" />
+                    <Clock size="14" class="mr-2 text-gray-500" />
                     <span>
                       {{ selectedAppointment ? formatTime(selectedAppointment.startTime) : '' }} - 
                       {{ selectedAppointment ? formatTime(selectedAppointment.endTime) : '' }}
@@ -392,12 +412,14 @@
               <div class="flex justify-end gap-3">
                 <BaseButton 
                   variant="secondary" 
+                  class="hover:bg-gray-100"
                   @click="closeDeleteModal"
                 >
                   Hủy
                 </BaseButton>
                 <BaseButton 
                   variant="danger" 
+                  class="bg-gray-900 hover:bg-black text-white border-0"
                   :loading="isDeleting"
                   @click="deleteAppointment"
                 >
@@ -536,7 +558,7 @@
       // Wait for DOM update
       setTimeout(() => {
         window.scrollTo({
-          top: document.querySelector('.space-y-4')?.offsetTop || 0,
+          top: document.querySelector('.space-y-6')?.offsetTop || 0,
           behavior: 'smooth'
         });
       }, 100);
@@ -614,13 +636,13 @@
   const getStatusClasses = (status) => {
     switch (status) {
       case 'pending':
-        return 'bg-warning/10 text-warning';
+        return 'bg-gray-100 text-gray-700 border border-gray-200';
       case 'confirmed':
-        return 'bg-info/10 text-info';
+        return 'bg-gray-800 text-white';
       case 'completed':
-        return 'bg-success/10 text-success';
+        return 'bg-black text-white';
       case 'cancelled':
-        return 'bg-error/10 text-error';
+        return 'bg-gray-200 text-gray-700 border border-gray-300';
       default:
         return 'bg-gray-100 text-gray-600';
     }
@@ -629,13 +651,13 @@
   const getAppointmentClasses = (appointment) => {
     switch (appointment.status) {
       case 'pending':
-        return 'bg-warning/10 text-warning border-l-2 border-warning';
+        return 'bg-gray-100 text-gray-700 border-l-2 border-gray-400';
       case 'confirmed':
-        return 'bg-info/10 text-info border-l-2 border-info';
+        return 'bg-gray-800/10 text-gray-800 border-l-2 border-gray-800';
       case 'completed':
-        return 'bg-success/10 text-success border-l-2 border-success';
+        return 'bg-black/10 text-black border-l-2 border-black';
       case 'cancelled':
-        return 'bg-error/10 text-error border-l-2 border-error';
+        return 'bg-gray-200 text-gray-600 border-l-2 border-gray-300';
       default:
         return 'bg-gray-100 text-gray-600 border-l-2 border-gray-300';
     }

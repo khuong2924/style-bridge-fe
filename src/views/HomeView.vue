@@ -501,6 +501,8 @@
                   {{ filteredPosts.length }} bài viết
                 </div>
               </div>
+              
+              <!-- Main filter categories -->
               <div class="filter-container flex overflow-x-auto py-2 space-x-3 scrollbar-hide relative">
                 <button 
                   v-for="filter in filters" 
@@ -532,6 +534,125 @@
                 
                 <!-- Gradient edge effect -->
                 <div class="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
+              </div>
+              
+              <!-- Advanced filter options -->
+              <div class="mt-3 pt-3 border-t border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center">
+                    <h4 class="text-sm font-medium text-gray-700 flex items-center">
+                      <SlidersHorizontal size="14" class="mr-1.5 text-gray-500" />
+                      Bộ lọc nâng cao
+                    </h4>
+                    <div 
+                      v-if="hasActiveFilters" 
+                      class="ml-2 px-1.5 py-0.5 bg-primary/10 text-primary text-xs rounded-full"
+                    >
+                      {{ activeFiltersCount }}
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center space-x-3">
+                    <button 
+                      @click="resetAndCloseFilters" 
+                      class="text-xs text-primary hover:underline flex items-center"
+                    >
+                      <RotateCcw size="12" class="mr-1" />
+                      Đặt lại bộ lọc
+                    </button>
+                    
+                    <button 
+                      @click="showAdvancedFilters = !showAdvancedFilters" 
+                      class="p-1 rounded-md hover:bg-gray-100 transition-colors"
+                      :title="showAdvancedFilters ? 'Thu gọn bộ lọc' : 'Mở rộng bộ lọc'"
+                    >
+                      <ChevronDown 
+                        v-if="showAdvancedFilters" 
+                        size="16" 
+                        class="text-gray-500 transition-transform duration-300"
+                      />
+                      <ChevronRight 
+                        v-else 
+                        size="16" 
+                        class="text-gray-500 transition-transform duration-300"
+                      />
+                    </button>
+                  </div>
+                </div>
+                
+                <div v-show="showAdvancedFilters" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 transition-all duration-300 ease-in-out"
+                  :class="{'opacity-100': showAdvancedFilters, 'opacity-0 max-h-0 overflow-hidden': !showAdvancedFilters}"
+                >
+                  <!-- Mức thù lao (Compensation) -->
+                  <div class="rounded-lg border border-gray-200 p-2">
+                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Mức thù lao</label>
+                    <div class="flex items-center space-x-2">
+                      <input 
+                        type="number" 
+                        v-model="advancedFilters.minPrice" 
+                        placeholder="Từ" 
+                        class="w-full text-sm rounded-md border-gray-200 py-1.5 focus:border-primary focus:ring-primary"
+                      />
+                      <span class="text-gray-400">-</span>
+                      <input 
+                        type="number" 
+                        v-model="advancedFilters.maxPrice" 
+                        placeholder="Đến" 
+                        class="w-full text-sm rounded-md border-gray-200 py-1.5 focus:border-primary focus:ring-primary"
+                      />
+                    </div>
+                  </div>
+                  
+                  <!-- Thời gian bắt đầu (StartTime) -->
+                  <div class="rounded-lg border border-gray-200 p-2">
+                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Thời gian bắt đầu</label>
+                    <input 
+                      type="date" 
+                      v-model="advancedFilters.startDate" 
+                      class="w-full text-sm rounded-md border-gray-200 py-1.5 focus:border-primary focus:ring-primary"
+                    />
+                  </div>
+                  
+                  <!-- Loại thuê (HiringType) -->
+                  <div class="rounded-lg border border-gray-200 p-2">
+                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Loại thuê</label>
+                    <select 
+                      v-model="advancedFilters.hiringType" 
+                      class="w-full text-sm rounded-md border-gray-200 py-1.5 focus:border-primary focus:ring-primary"
+                    >
+                      <option value="">Tất cả</option>
+                      <option value="Trọn gói">Trọn gói</option>
+                      <option value="Theo giờ">Theo giờ</option>
+                      <option value="Theo buổi">Theo buổi</option>
+                    </select>
+                  </div>
+                  
+                  <!-- Địa điểm (Address) -->
+                  <div class="rounded-lg border border-gray-200 p-2">
+                    <label class="block text-xs font-medium text-gray-600 mb-1.5">Địa điểm</label>
+                    <select 
+                      v-model="advancedFilters.location" 
+                      class="w-full text-sm rounded-md border-gray-200 py-1.5 focus:border-primary focus:ring-primary"
+                    >
+                      <option value="">Tất cả</option>
+                      <option v-for="location in uniqueLocations" :key="location" :value="location">
+                        {{ location }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div v-show="showAdvancedFilters" class="flex justify-end mt-3 transition-all duration-300"
+                  :class="{'opacity-100 transform translate-y-0': showAdvancedFilters, 'opacity-0 transform -translate-y-4': !showAdvancedFilters}"
+                >
+                  <button 
+                    @click="applyAdvancedFilters" 
+                    class="flex items-center px-4 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
+                  >
+                    <Search size="14" class="mr-1.5" />
+                    Lọc kết quả
+                  </button>
+                </div>
               </div>
             </div>
             
@@ -851,7 +972,7 @@
           <div class="relative z-10 bg-white rounded-xl shadow-xl w-full max-w-lg transform motion-scale-in-[0.95] motion-duration-[0.53s]/scale motion-ease-spring-bouncy">
             <div class="flex items-center justify-between p-5 border-b border-gray-200">
               <h2 class="text-xl font-semibold text-gray-900">Tạo bài đăng</h2>
-              <button class="text-gray-400 hover:text-gray-500 hover:rotate-90 transition-transform duration-300 btn-hover-hide btn-close" @click="showPostModal = false">
+              <button class="text-gray-400 hover:text-gray-500 hover:rotate-90 transition-transform duration-300 btn-hover-hide" @click="showPostModal = false">
                 <X size="20" />
               </button>
             </div>
@@ -1218,7 +1339,8 @@
     Heart, MessageSquare, Share2, MoreVertical, Send, Smile, Check,
     ChevronLeft, ChevronRight, TrendingUp, Newspaper, Home, Bell, Users,
     Settings, HelpCircle, Filter, Sparkles, Brush, Camera, Palette,
-    Clock, Eye, Bookmark, PlusCircle, Trophy, Mail, Phone, Upload
+    Clock, Eye, Bookmark, PlusCircle, Trophy, Mail, Phone, Upload,
+    SlidersHorizontal, RotateCcw, Search, ChevronDown
   } from 'lucide-vue-next';
   import MainLayout from '@/layouts/MainLayout.vue';
   import BaseCard from '@/components/ui/BaseCard.vue';
@@ -1274,6 +1396,16 @@
   const showSimpleModal = ref(false);
   const showDirectTestModal = ref(false);
   const isModalOpen = ref(false);
+  const advancedFilters = reactive({
+    minPrice: '',
+    maxPrice: '',
+    startDate: '',
+    hiringType: '',
+    location: ''
+  });
+  const uniqueLocations = ref([]);
+  const showAdvancedFilters = ref(true);
+  const activeFiltersCount = ref(0);
   
   // Filters
   const filters = [
@@ -1338,6 +1470,27 @@
   const debugToken = ref('');
   const showTokenInput = ref(false);
   
+  // Computed
+  const hasActiveFilters = computed(() => {
+    return !!(
+      advancedFilters.minPrice || 
+      advancedFilters.maxPrice || 
+      advancedFilters.startDate || 
+      advancedFilters.hiringType || 
+      advancedFilters.location
+    );
+  });
+  
+  // Update activeFiltersCount whenever filters change
+  watch(advancedFilters, () => {
+    let count = 0;
+    if (advancedFilters.minPrice || advancedFilters.maxPrice) count++;
+    if (advancedFilters.startDate) count++;
+    if (advancedFilters.hiringType) count++;
+    if (advancedFilters.location) count++;
+    activeFiltersCount.value = count;
+  }, { deep: true, immediate: true });
+  
   // Fetch posts with filter
   const fetchPostsWithFilter = async (filter = 'all') => {
     isLoading.value = true;
@@ -1347,6 +1500,35 @@
       // Add filter parameter if necessary
       if (filter !== 'all' && filter !== 'jobs') {
         url += `&makeupType=${encodeURIComponent(filter)}`;
+      }
+      
+      // Add advanced filter parameters
+      const params = new URLSearchParams();
+      
+      if (advancedFilters.minPrice) {
+        params.append('minPrice', advancedFilters.minPrice);
+      }
+      
+      if (advancedFilters.maxPrice) {
+        params.append('maxPrice', advancedFilters.maxPrice);
+      }
+      
+      if (advancedFilters.startDate) {
+        params.append('startDate', advancedFilters.startDate);
+      }
+      
+      if (advancedFilters.hiringType) {
+        params.append('hiringType', advancedFilters.hiringType);
+      }
+      
+      if (advancedFilters.location) {
+        params.append('location', advancedFilters.location);
+      }
+      
+      // Append params to URL if any are set
+      const paramsString = params.toString();
+      if (paramsString) {
+        url += `&${paramsString}`;
       }
       
       const response = await axios.get(url);
@@ -1409,6 +1591,23 @@
       );
       
       posts.value = postsWithUserInfo;
+      
+      // Extract unique locations for the filter dropdown
+      const locations = new Set();
+      postsWithUserInfo.forEach(post => {
+        if (post.job && post.job.location) {
+          // Extract district from address (assuming format like "12 Nguyễn Huệ, Quận 1, TP.HCM")
+          const addressParts = post.job.location.split(',');
+          if (addressParts.length > 1) {
+            const district = addressParts[1].trim();
+            locations.add(district);
+          } else {
+            locations.add(post.job.location);
+          }
+        }
+      });
+      uniqueLocations.value = Array.from(locations);
+      
     } catch (error) {
       console.error('Error fetching posts:', error);
     } finally {
@@ -1436,6 +1635,35 @@
         // Add filter parameter if necessary
         if (activeFilter.value !== 'all' && activeFilter.value !== 'jobs') {
           url += `&makeupType=${encodeURIComponent(activeFilter.value)}`;
+        }
+        
+        // Add advanced filter parameters
+        const params = new URLSearchParams();
+        
+        if (advancedFilters.minPrice) {
+          params.append('minPrice', advancedFilters.minPrice);
+        }
+        
+        if (advancedFilters.maxPrice) {
+          params.append('maxPrice', advancedFilters.maxPrice);
+        }
+        
+        if (advancedFilters.startDate) {
+          params.append('startDate', advancedFilters.startDate);
+        }
+        
+        if (advancedFilters.hiringType) {
+          params.append('hiringType', advancedFilters.hiringType);
+        }
+        
+        if (advancedFilters.location) {
+          params.append('location', advancedFilters.location);
+        }
+        
+        // Append params to URL if any are set
+        const paramsString = params.toString();
+        if (paramsString) {
+          url += `&${paramsString}`;
         }
         
         const response = await axios.get(url);
@@ -1499,6 +1727,22 @@
         );
         
         posts.value = [...posts.value, ...newPostsWithUserInfo];
+        
+        // Add any new locations to the unique locations list
+        const newLocations = new Set(uniqueLocations.value);
+        newPostsWithUserInfo.forEach(post => {
+          if (post.job && post.job.location) {
+            const addressParts = post.job.location.split(',');
+            if (addressParts.length > 1) {
+              const district = addressParts[1].trim();
+              newLocations.add(district);
+            } else {
+              newLocations.add(post.job.location);
+            }
+          }
+        });
+        uniqueLocations.value = Array.from(newLocations);
+        
       } catch (error) {
         console.error('Error loading more posts:', error);
       } finally {
@@ -1509,11 +1753,54 @@
   
   // Computed
   const filteredPosts = computed(() => {
-    // API handles most filtering, but we still need to handle the 'jobs' filter case
+    // First apply the main category filter
+    let result = posts.value;
+    
     if (activeFilter.value === 'jobs') {
-      return posts.value.filter(post => post.job);
+      result = result.filter(post => post.job);
+    } else if (activeFilter.value !== 'all') {
+      result = result.filter(post => post.makeupType === activeFilter.value);
     }
-    return posts.value;
+    
+    // Then apply advanced filters if any are set
+    if (advancedFilters.minPrice) {
+      result = result.filter(post => {
+        if (!post.job) return false;
+        const price = parseFloat(post.job.price);
+        return !isNaN(price) && price >= parseFloat(advancedFilters.minPrice);
+      });
+    }
+    
+    if (advancedFilters.maxPrice) {
+      result = result.filter(post => {
+        if (!post.job) return false;
+        const price = parseFloat(post.job.price);
+        return !isNaN(price) && price <= parseFloat(advancedFilters.maxPrice);
+      });
+    }
+    
+    if (advancedFilters.startDate) {
+      const filterDate = new Date(advancedFilters.startDate);
+      result = result.filter(post => {
+        if (!post.job || !post.job.date) return false;
+        const postDate = new Date(post.job.date);
+        return postDate >= filterDate;
+      });
+    }
+    
+    if (advancedFilters.hiringType) {
+      result = result.filter(post => {
+        return post.job && post.job.hiringType === advancedFilters.hiringType;
+      });
+    }
+    
+    if (advancedFilters.location) {
+      result = result.filter(post => {
+        return post.job && post.job.location && post.job.location.includes(advancedFilters.location);
+      });
+    }
+    
+    return result;
   });
   
   // Methods
@@ -2016,8 +2303,13 @@
         return window.setAuthTokenDirectly(sampleLoginResponse);
       };
       
-      // Fetch posts from API
+      // Fetch posts from API - this will also extract locations
       await fetchPostsWithFilter(activeFilter.value);
+      
+      // If we didn't get any locations from posts, try the direct API
+      if (uniqueLocations.value.length === 0) {
+        await fetchUniqueLocations();
+      }
       
       // Fetch applications for notifications
       await fetchApplications();
@@ -2455,6 +2747,59 @@
     } else {
       alert('No token available to copy');
     }
+  };
+  
+  // Reset filters
+  const resetFilters = () => {
+    advancedFilters.minPrice = '';
+    advancedFilters.maxPrice = '';
+    advancedFilters.startDate = '';
+    advancedFilters.hiringType = '';
+    advancedFilters.location = '';
+  };
+  
+  // Apply advanced filters
+  const applyAdvancedFilters = () => {
+    // Reset to first page and fetch with current filters
+    currentPage.value = 0;
+    fetchPostsWithFilter(activeFilter.value);
+  };
+  
+  // Fetch unique locations
+  const fetchUniqueLocations = async () => {
+    try {
+      // This is a fallback in case we don't have any posts yet
+      // In most cases, locations will be extracted from posts
+      const response = await axios.get('http://localhost:8082/posting/api/locations');
+      if (response.data && Array.isArray(response.data)) {
+        const apiLocations = response.data.map(location => 
+          typeof location === 'string' ? location : location.name || location.district || ''
+        ).filter(Boolean);
+        
+        // Merge with any existing locations
+        const allLocations = new Set([...uniqueLocations.value, ...apiLocations]);
+        uniqueLocations.value = Array.from(allLocations);
+      }
+    } catch (error) {
+      console.error('Error fetching unique locations:', error);
+    }
+  };
+  
+  // Reset filters and toggle advanced section
+  const resetAndCloseFilters = () => {
+    advancedFilters.minPrice = '';
+    advancedFilters.maxPrice = '';
+    advancedFilters.startDate = '';
+    advancedFilters.hiringType = '';
+    advancedFilters.location = '';
+    
+    // Apply the reset filters immediately
+    applyAdvancedFilters();
+    
+    // Close the advanced filters section after a short delay
+    setTimeout(() => {
+      showAdvancedFilters.value = false;
+    }, 300);
   };
   </script>
   
