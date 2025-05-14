@@ -7,6 +7,7 @@ import JobListings from "@/views/JobListings.vue"
 import JobDetail from "@/views/JobDetail.vue"
 import LoginView from "@/views/LoginView.vue"
 import RegisterView from "@/views/RegisterView.vue"
+import ModalTestPage from "@/views/ModalTestPage.vue"
 
 // Trang yêu cầu đăng nhập
 import CreateJobPost from "@/views/CreateJobPost.vue"
@@ -51,6 +52,12 @@ const router = createRouter({
       name: "register",
       component: RegisterView,
       meta: { title: "Đăng ký", guest: true },
+    },
+    {
+      path: "/modal-test",
+      name: "modal-test",
+      component: ModalTestPage,
+      meta: { title: "Test Modal" },
     },
 
     // Trang yêu cầu đăng nhập

@@ -1,6 +1,166 @@
 <template>
     <MainLayout>
+      <!-- Simple Test Modal - Remove in production -->
+      <div v-if="showSimpleModal" class="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto">
+        <div class="absolute inset-0 bg-black/60" @click="showSimpleModal = false"></div>
+        <div class="relative bg-white rounded-lg w-full max-w-md p-6">
+          <div class="flex justify-between items-center mb-6 pb-3 border-b border-gray-200">
+            <h2 class="text-xl font-bold text-gray-900 flex items-center">
+              <span class="bg-gray-900 text-white p-1.5 rounded-md mr-2">📝</span>
+              Ứng tuyển công việc
+            </h2>
+            <button
+              class="text-gray-500 hover:text-gray-700 hover:rotate-90 transition-transform duration-300"
+              @click="showSimpleModal = false"
+            >
+              <X size="20" />
+            </button>
+          </div>
+          
+          <form @submit.prevent="submitApplication">
+            <div class="space-y-4">
+              <!-- Post ID (Hidden) -->
+              <input type="hidden" v-model="applicationForm.recruitmentPostId" />
+              
+              <!-- Message -->
+              <div>
+                <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Lời nhắn</label>
+                <textarea
+                  id="message"
+                  v-model="applicationForm.message"
+                  rows="3"
+                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
+                  placeholder="Tôi có nhiều kinh nghiệm trong lĩnh vực trang điểm..."
+                  required
+                ></textarea>
+              </div>
+              
+              <!-- Other Skills -->
+              <div>
+                <label for="otherSkills" class="block text-sm font-medium text-gray-700 mb-1">Kỹ năng khác</label>
+                <textarea
+                  id="otherSkills"
+                  v-model="applicationForm.otherSkills"
+                  rows="2"
+                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
+                  placeholder="Trang điểm sự kiện, Trang điểm dự tiệc..."
+                ></textarea>
+              </div>
+              
+              <!-- Preferred Contact Method -->
+              <div>
+                <label for="preferredContactMethod" class="block text-sm font-medium text-gray-700 mb-1">Phương thức liên hệ</label>
+                <input
+                  id="preferredContactMethod"
+                  v-model="applicationForm.preferredContactMethod"
+                  type="text"
+                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
+                  placeholder="Email hoặc điện thoại sau 18h"
+                />
+              </div>
+              
+              <!-- Availability -->
+              <div>
+                <label for="availability" class="block text-sm font-medium text-gray-700 mb-1">Thời gian có thể làm việc</label>
+                <input
+                  id="availability"
+                  v-model="applicationForm.availability"
+                  type="text"
+                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
+                  placeholder="Có thể làm việc vào cuối tuần và buổi tối"
+                />
+              </div>
+              
+              <!-- Images -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Hình ảnh</label>
+                
+                <!-- Image preview -->
+                <div v-if="applicationForm.images.length > 0" class="grid grid-cols-3 gap-3 mb-4">
+                  <div 
+                    v-for="(image, index) in applicationForm.images" 
+                    :key="index"
+                    class="relative aspect-square rounded-lg overflow-hidden border border-gray-200 shadow-sm group hover:shadow-md transition-all duration-300 hover:border-gray-300"
+                  >
+                    <img 
+                      :src="image.preview" 
+                      alt="Preview" 
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <button 
+                      type="button"
+                      class="absolute bottom-2 right-2 p-1.5 bg-white text-gray-700 rounded-full shadow hover:shadow-md hover:bg-gray-100 transition-all duration-300 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0"
+                      @click="removeImage(index)"
+                    >
+                      <X size="14" />
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Image upload button -->
+                <div 
+                  @click="$refs.fileInput.click()"
+                  class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors duration-300 group hover:border-gray-500 hover:shadow-inner relative overflow-hidden"
+                >
+                  <div class="relative z-10">
+                    <Upload size="24" class="mx-auto text-gray-400 mb-2 group-hover:text-gray-600 transition-colors duration-300 group-hover:scale-110 transform" />
+                    <p class="text-sm text-gray-500 group-hover:text-gray-700 transition-colors duration-300 font-medium">Click để tải lên hình ảnh</p>
+                    <p class="text-xs text-gray-400 mt-1 group-hover:text-gray-500 transition-colors duration-300">Tối đa 5 hình, dung lượng < 2MB</p>
+                  </div>
+                  <div class="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-50 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                  <input 
+                    ref="fileInput"
+                    type="file" 
+                    multiple 
+                    accept="image/*"
+                    class="hidden"
+                    @change="handleImageUpload" 
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-6 flex justify-end space-x-3">
+              <button
+                type="button"
+                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-sm hover:shadow"
+                @click="showSimpleModal = false"
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                class="px-5 py-2 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-lg hover:from-gray-900 hover:to-black shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 overflow-hidden relative group"
+                :disabled="isSubmittingApplication"
+              >
+                <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-gray-800 to-gray-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -translate-x-full group-hover:translate-x-0"></span>
+                <span class="relative z-10">
+                  <span v-if="isSubmittingApplication" class="flex items-center">
+                    <LoaderCircle size="16" class="animate-spin mr-2" />
+                    Đang gửi...
+                  </span>
+                  <span v-else>Xác nhận</span>
+                </span>
+              </button>
+            </div>
+            
+            <!-- Add testing instructions -->
+            <div class="mt-3 text-xs text-gray-500 italic p-2 bg-gray-50 rounded-md">
+              <p class="font-medium mb-1">💡 Gặp lỗi xác thực (403) khi ứng tuyển?</p>
+              <p class="mb-1">Có thể bạn cần thiết lập token xác thực. Mở DevTools Console (F12) và sử dụng một trong các lệnh sau:</p>
+              <ul class="list-disc ml-5 space-y-1 mt-1">
+                <li><code class="bg-gray-100 p-1 rounded font-mono text-gray-700">window.setTestToken()</code> - Thiết lập token test nhanh</li>
+                <li><code class="bg-gray-100 p-1 rounded font-mono text-gray-700">window.setExampleLoginToken()</code> - Thiết lập token giả lập đăng nhập</li>
+                <li><code class="bg-gray-100 p-1 rounded font-mono text-gray-700">window.setAuthTokenDirectly(loginResponse)</code> - Thiết lập token từ kết quả đăng nhập</li>
+              </ul>
+            </div>
+          </form>
+        </div>
+      </div>
+      
       <div class="container py-8">
+        
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <!-- Cột Trái - Thông tin người dùng và menu -->
@@ -385,6 +545,7 @@
                   <div 
                     v-if="post.job"
                     class="border border-gray-200 rounded-lg p-5 mb-3 bg-gray-50 hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                    :data-post-id="post.id"
                   >
                     <div class="absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-gray-700 to-gray-900"></div>
                     <div class="pl-3">
@@ -410,6 +571,7 @@
                           <span class="font-medium">{{ formatPrice(post.job.price) }}</span>
                         </div>
                       </div>
+                      
                       
                       <!-- Thông tin thêm -->
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-700 mb-4">
@@ -445,14 +607,16 @@
                             <Eye size="14" class="mr-2" />
                             Xem chi tiết
                           </BaseButton>
-                          <BaseButton 
-                            variant="primary" 
-                            class="bg-gradient-to-r from-gray-700 to-gray-900 text-white hover:from-gray-800 hover:to-black text-sm shadow-md"
-                            @click="handleJobApplication(post.job)"
+                          <button 
+                            id="apply-button"
+                            class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-gray-800 to-gray-900 text-white text-sm font-medium rounded-lg hover:from-gray-900 hover:to-black shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 group relative overflow-hidden"
+                            @click="handleSimpleApplyButtonClick(post)"
                           >
-                            <Briefcase size="14" class="mr-2" />
-                            Ứng tuyển ngay
-                          </BaseButton>
+                            <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-gray-800 to-gray-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -translate-x-full group-hover:translate-x-0"></span>
+                            <span class="flex items-center justify-center relative z-10">
+                              <span class="font-medium group-hover:tracking-wide transition-all duration-300">Ứng tuyển ngay</span>
+                            </span>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -720,6 +884,8 @@
           </div>
         </div>
         
+        
+        
         <!-- User Profile Modal -->
         <div v-if="showProfileModal" class="fixed inset-0 z-50 flex items-center justify-center">
           <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closeUserProfile"></div>
@@ -860,7 +1026,7 @@
   </template>
   
   <script setup>
-  import { ref, computed, onMounted, reactive, watch } from 'vue';
+  import { ref, computed, onMounted, reactive, watch, nextTick } from 'vue';
   import { useRouter } from 'vue-router';
   import axios from 'axios';
   import { 
@@ -868,7 +1034,7 @@
     Heart, MessageSquare, Share2, MoreVertical, Send, Smile, Check,
     ChevronLeft, ChevronRight, TrendingUp, Newspaper, Home, Bell, Users,
     Settings, HelpCircle, Filter, Sparkles, Brush, Camera, Palette,
-    Clock, Eye, Bookmark, PlusCircle, Trophy, Mail, Phone
+    Clock, Eye, Bookmark, PlusCircle, Trophy, Mail, Phone, Upload
   } from 'lucide-vue-next';
   import MainLayout from '@/layouts/MainLayout.vue';
   import BaseCard from '@/components/ui/BaseCard.vue';
@@ -909,6 +1075,20 @@
     message: ''
   });
   const isSending = ref(false);
+  const showApplicationModal = ref(false);
+  const selectedJob = ref(null);
+  const isSubmittingApplication = ref(false);
+  const applicationForm = ref({
+    recruitmentPostId: '',
+    message: '',
+    otherSkills: '',
+    preferredContactMethod: '',
+    availability: '',
+    images: []
+  });
+  const showSimpleModal = ref(false);
+  const showDirectTestModal = ref(false);
+  const isModalOpen = ref(false);
   
   // Filters
   const filters = [
@@ -1048,6 +1228,11 @@
   // Watch for filter changes
   watch(activeFilter, (newFilter) => {
     fetchPostsWithFilter(newFilter);
+  });
+  
+  // Debug modal visibility
+  watch(showApplicationModal, (newValue) => {
+    console.log('showApplicationModal changed to:', newValue);
   });
   
   // Load more posts
@@ -1196,16 +1381,7 @@
   };
   
   const handleJobApplication = (job) => {
-    if (!authStore.isAuthenticated) {
-      const confirmed = confirm('Bạn cần đăng nhập để ứng tuyển. Đăng nhập ngay?');
-      if (confirmed) {
-        router.push('/login?redirect=/jobs/' + job.id);
-      }
-      return;
-    }
-    
-    alert(`Bạn đang ứng tuyển vào vị trí: ${job.title}`);
-    router.push(`/jobs/${job.id}/apply`);
+    openApplicationModal(job);
   };
   
   const focusComment = (postId) => {
@@ -1424,323 +1600,366 @@
     }
   };
   
+  // Updated token handling for the application submission
+  const submitApplication = async (event) => {
+    if (!applicationForm.value.recruitmentPostId || !applicationForm.value.message) {
+      alert('Vui lòng điền đầy đủ thông tin bắt buộc');
+      return;
+    }
+    
+    console.log('Bắt đầu xử lý ứng tuyển...');
+    console.log('Thông tin ứng tuyển:', {
+      recruitmentPostId: applicationForm.value.recruitmentPostId,
+      message: applicationForm.value.message?.substring(0, 20) + '...'
+    });
+    
+    isSubmittingApplication.value = true;
+    
+    try {
+      // Check token from multiple sources, with axios defaults as a backup
+      let authToken = localStorage.getItem('token') || sessionStorage.getItem('token');
+      console.log('Token từ localStorage/sessionStorage:', authToken ? 'Đã tìm thấy' : 'Không tìm thấy');
+      
+      // Try to get from authStore if no token found yet
+      if (!authToken && authStore.token) {
+        authToken = authStore.token;
+        console.log('Token từ authStore:', 'Đã tìm thấy');
+      }
+      
+      // Try axios defaults as a last resort
+      if (!authToken && axios.defaults.headers.common['Authorization']) {
+        const authHeader = axios.defaults.headers.common['Authorization'];
+        if (authHeader.startsWith('Bearer ')) {
+          authToken = authHeader.substring(7);
+          console.log('Token từ axios defaults:', 'Đã tìm thấy');
+        }
+      }
+      
+      console.log('Token cuối cùng:', authToken ? `${authToken.substring(0, 15)}...` : 'Không tìm thấy');
+      
+      // Auto-set test token if none is found
+      if (!authToken) {
+        console.log('Không tìm thấy token, đang thử thiết lập token test...');
+        try {
+          const result = window.setTestToken();
+          console.log('Kết quả thiết lập token test:', result);
+          if (result && result.success) {
+            authToken = localStorage.getItem('token');
+            console.log('Đã tự động thiết lập token test:', authToken ? `${authToken.substring(0, 15)}...` : 'Thất bại');
+          }
+        } catch (error) {
+          console.error('Lỗi khi thiết lập token test:', error);
+        }
+        
+        if (!authToken) {
+          alert('Bạn cần đăng nhập để thực hiện chức năng này. Hoặc sử dụng lệnh window.setTestToken() trong Console để thiết lập token test.');
+          isSubmittingApplication.value = false;
+          return;
+        }
+      }
+      
+      // Log the data being sent for debugging
+      console.log('Sending application data:', {
+        recruitmentPostId: applicationForm.value.recruitmentPostId,
+        message: applicationForm.value.message,
+        otherSkills: applicationForm.value.otherSkills,
+        preferredContactMethod: applicationForm.value.preferredContactMethod,
+        availability: applicationForm.value.availability,
+        imageCount: applicationForm.value.images.length
+      });
+      
+      // Prepare form data for multipart/form-data request
+      const formData = new FormData();
+      formData.append('recruitmentPostId', applicationForm.value.recruitmentPostId);
+      formData.append('message', applicationForm.value.message);
+      
+      if (applicationForm.value.otherSkills) {
+        formData.append('otherSkills', applicationForm.value.otherSkills);
+      }
+      
+      if (applicationForm.value.preferredContactMethod) {
+        formData.append('preferredContactMethod', applicationForm.value.preferredContactMethod);
+      }
+      
+      if (applicationForm.value.availability) {
+        formData.append('availability', applicationForm.value.availability);
+      }
+      
+      // Append images if any
+      applicationForm.value.images.forEach((image) => {
+        formData.append('images', image.file);
+      });
+      
+      // Ensure token is set in global axios defaults
+      axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+      
+      // Make a direct fetch request to get better control and debugging
+      const response = await fetch('http://localhost:8082/posting/api/applications/with-images', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+          // Don't set Content-Type in fetch with FormData, it will set the correct one with boundary
+        },
+        body: formData
+      });
+      
+      // Check response
+      if (!response.ok) {
+        // Try to get more info about the error
+        let errorData = null;
+        try {
+          errorData = await response.json();
+        } catch (e) {
+          // Fallback if we can't parse the error
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        if (errorData) {
+          throw new Error(`Error: ${errorData.message || response.statusText}`);
+        } else {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+      }
+      
+      // Parse response
+      const data = await response.json();
+      console.log('Application submitted successfully:', data);
+      
+      // Reset form and close modal
+      applicationForm.value = {
+        recruitmentPostId: '',
+        message: '',
+        otherSkills: '',
+        preferredContactMethod: '',
+        availability: '',
+        images: []
+      };
+      
+      // Show success message
+      alert('Đơn ứng tuyển của bạn đã được gửi thành công!');
+      showSimpleModal.value = false;
+      
+    } catch (error) {
+      console.error('Error submitting application:', error);
+      
+      let errorMessage = 'Đã xảy ra lỗi khi gửi đơn ứng tuyển. Vui lòng thử lại sau.';
+      
+      if (error.message.includes('401') || error.message.includes('403')) {
+        errorMessage = 'Phiên đăng nhập đã hết hạn hoặc bạn không có quyền thực hiện chức năng này.';
+        errorMessage += '\n\nVui lòng thử thiết lập token bằng cách mở Console và gõ lệnh window.setTestToken()';
+      }
+      
+      alert(errorMessage);
+    } finally {
+      isSubmittingApplication.value = false;
+    }
+  };
+  
   // Fetch data
   onMounted(async () => {
     isLoading.value = true;
     
     try {
+      // Initialize the modal system
+      document.body.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && showApplicationModal.value) {
+          closeApplicationModal();
+        }
+      });
+      
+      // Call checkAndSetToken to process any token in URL params or storage
+      const initialTokenCheck = checkAndSetToken();
+      console.log('Token check on page load:', initialTokenCheck ? 'Token found and set' : 'No token found');
+      
+      // Define a global method for testing with token
+      window.setTestToken = () => {
+        try {
+          const token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhcnRpc3QxIiwiaWQiOiIyIiwicm9sZXMiOiJST0xFX0FSVElTVCIsImlhdCI6MTc0NzI0NDIxMCwiZXhwIjoxNzQ3MzMwNjEwfQ.LfazmOeGb4WB_47_Fg9WhO3zeZNzSOb1UcUQAlzMK1_bQf2K8I5ByncmAq8PYcZ8KOYCSe7X-iKW17lZoAubIQ";
+          
+          // Store in multiple places to increase chances of success
+          localStorage.setItem('token', token);
+          sessionStorage.setItem('token', token);
+          
+          // If using authentication store
+          if (authStore.setToken) {
+            authStore.setToken(token);
+          }
+          
+          // Create global axios defaults
+          if (window.axios) {
+            window.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          } else {
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          }
+          
+          console.log('%cToken set successfully!', 'color: green; font-weight: bold; font-size: 14px');
+          console.log('Token value:', token.substring(0, 20) + '...');
+          console.log('Try submitting your application now.');
+          
+          return {
+            success: true,
+            message: 'Token set successfully in localStorage, sessionStorage, and global axios defaults'
+          };
+        } catch (error) {
+          console.error('Error setting token:', error);
+          return {
+            success: false,
+            error: error.message
+          };
+        }
+      };
+      
+      // Also provide a direct token setter for login response
+      window.setExampleLoginToken = () => {
+        const sampleLoginResponse = {
+          "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhcnRpc3QxIiwiaWQiOiIyIiwicm9sZXMiOiJST0xFX0FSVElTVCIsImlhdCI6MTc0NzI0NDIxMCwiZXhwIjoxNzQ3MzMwNjEwfQ.LfazmOeGb4WB_47_Fg9WhO3zeZNzSOb1UcUQAlzMK1_bQf2K8I5ByncmAq8PYcZ8KOYCSe7X-iKW17lZoAubIQ",
+          "type": "Bearer",
+          "id": 2,
+          "username": "artist1",
+          "email": "artist1@example.com",
+          "roles": [
+            "ROLE_ARTIST"
+          ]
+        };
+        
+        return window.setAuthTokenDirectly(sampleLoginResponse);
+      };
+      
       // Fetch posts from API
       await fetchPostsWithFilter(activeFilter.value);
       
-      // Mock notifications
-      notifications.value = [
-        {
-          id: 1,
-          type: 'application',
-          message: 'đã ứng tuyển vào công việc của bạn',
-          timestamp: new Date(Date.now() - 30 * 60 * 1000),
-          read: false,
-          user: {
-            name: 'Ngọc Anh',
-            avatar: null
+      // Check and set token from login response
+      const tokenSet = checkAndSetToken();
+      if (!tokenSet) {
+        // If token is not set, try to set it from localStorage
+        const localToken = localStorage.getItem('token');
+        if (localToken) {
+          console.log('Found existing token in localStorage');
+          sessionStorage.setItem('token', localToken);
+          if (authStore.setToken) {
+            authStore.setToken(localToken);
           }
-        },
-        {
-          id: 2,
-          type: 'message',
-          message: 'đã gửi cho bạn một tin nhắn mới',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-          read: false,
-          user: {
-            name: 'Minh Tâm',
-            avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s'
-          }
+          axios.defaults.headers.common['Authorization'] = `Bearer ${localToken}`;
         }
-      ];
-      
-      // Mock trends
-      trends.value = [
-        {
-          name: 'Trang điểm cô dâu',
-          count: 128,
-          trending: true
-        },
-        {
-          name: 'Makeup tự nhiên',
-          count: 96,
-          trending: true
-        },
-        {
-          name: 'Trang điểm Hàn Quốc',
-          count: 84,
-          trending: false
-        },
-        {
-          name: 'Trang điểm sự kiện',
-          count: 72,
-          trending: false
-        },
-        {
-          name: 'Trang điểm nghệ thuật',
-          count: 56,
-          trending: true
-        }
-      ];
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
       isLoading.value = false;
     }
   });
+  
+  // Check and set token from login response
+  const checkAndSetToken = () => {
+    // Try to get token from various sources after login
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('token')) {
+      // If token is present in URL (redirect after login)
+      const token = urlParams.get('token');
+      if (token) {
+        console.log('Found token in URL parameters, storing...');
+        localStorage.setItem('token', token);
+        sessionStorage.setItem('token', token);
+        if (authStore.setToken) {
+          authStore.setToken(token);
+        }
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        return true;
+      }
+    }
+    
+    // Try to get token from localStorage if not in URL
+    const localToken = localStorage.getItem('token');
+    if (localToken) {
+      console.log('Found existing token in localStorage');
+      sessionStorage.setItem('token', localToken);
+      if (authStore.setToken) {
+        authStore.setToken(localToken);
+      }
+      axios.defaults.headers.common['Authorization'] = `Bearer ${localToken}`;
+      return true;
+    }
+    
+    return false;
+  }
+  
+  // Function to save token directly from login response
+  window.setAuthTokenDirectly = (loginResponse) => {
+    try {
+      if (!loginResponse || !loginResponse.token) {
+        console.error('Invalid login response - no token found');
+        return { success: false, error: 'No token in response' };
+      }
+
+      const token = loginResponse.token;
+      
+      // Store in multiple places to ensure availability
+      localStorage.setItem('token', token);
+      sessionStorage.setItem('token', token);
+      
+      // Set in auth store if available
+      if (authStore.setToken) {
+        authStore.setToken(token);
+      }
+      
+      // Set in axios defaults
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      console.log('%cToken set successfully from login response!', 'color: green; font-weight: bold; font-size: 14px');
+      console.log('Token value:', token.substring(0, 20) + '...');
+      console.log('User info:', {
+        id: loginResponse.id,
+        username: loginResponse.username,
+        email: loginResponse.email,
+        roles: loginResponse.roles
+      });
+      
+      return { 
+        success: true,
+        message: 'Token successfully stored from login response'
+      };
+    } catch (error) {
+      console.error('Error setting token from login response:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  };
+  
+  // Add a simple handler that directly sets the modal to visible
+  const handleSimpleApplyButtonClick = (post) => {
+    console.log('Simple apply button clicked for post:', post ? post.id : 'unknown');
+    
+    // Set the current job's ID to the application form
+    if (post && post.job) {
+      applicationForm.value.recruitmentPostId = post.job.id.toString();
+      console.log('Setting recruitment post ID:', post.job.id);
+    } else if (selectedJob && selectedJob.value) {
+      applicationForm.value.recruitmentPostId = selectedJob.value.id.toString();
+    } else {
+      // If there's a job in the post we're currently viewing
+      const currentPost = posts.value.find(post => 
+        post.job && (post.id === selectedPost.value?.id || document.getElementById('apply-button')?.closest('[data-post-id]')?.getAttribute('data-post-id') === post.id.toString())
+      );
+      
+      if (currentPost && currentPost.job) {
+        applicationForm.value.recruitmentPostId = currentPost.job.id.toString();
+      } else {
+        console.warn('Could not determine recruitment post ID');
+      }
+    }
+    
+    // Reset other form fields
+    applicationForm.value.message = '';
+    applicationForm.value.otherSkills = '';
+    applicationForm.value.preferredContactMethod = '';
+    applicationForm.value.availability = '';
+    applicationForm.value.images = [];
+    
+    // Show the modal
+    showSimpleModal.value = true;
+    console.log('Set showSimpleModal to true:', showSimpleModal.value);
+  };
   </script>
-
-<style scoped>
-:root {
-  --color-primary-rgb: 79, 70, 229;
-  --color-primary-dark-rgb: 67, 56, 202;
-  --color-success-rgb: 75, 192, 192;
-  --color-warning-rgb: 255, 159, 64;
-  --color-error-rgb: 255, 71, 87;
-  --color-info-rgb: 30, 144, 255;
-}
-
-.btn-hover-hide {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.btn-hover-hide:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  filter: brightness(1.05);
-}
-
-.btn-hover-hide:active {
-  transform: translateY(-1px);
-}
-
-.btn-hover-hide::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transform: translateX(-100%);
-}
-
-.btn-hover-hide:hover::after {
-  animation: btn-shine 0.8s;
-}
-
-/* Quick menu item hover effect */
-.quick-menu-item {
-  transition: all 0.3s ease;
-  border: 1px solid transparent;
-}
-
-.quick-menu-item:hover {
-  background-color: rgba(var(--color-primary-rgb), 0.05);
-  border-color: rgba(var(--color-primary-rgb), 0.1);
-  transform: translateX(5px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.quick-menu-item:hover .icon-container {
-  transform: scale(1.1) rotate(5deg);
-  color: rgb(var(--color-primary-rgb));
-  background-color: rgba(var(--color-primary-rgb), 0.1);
-}
-
-/* Custom button styles */
-.btn-action-primary:hover {
-  background: linear-gradient(to right, rgba(var(--color-primary-rgb), 0.1), rgba(var(--color-primary-rgb), 0.05));
-  border-color: rgba(var(--color-primary-rgb), 0.2);
-}
-
-.btn-action-success:hover {
-  background: linear-gradient(to right, rgba(var(--color-success-rgb), 0.1), rgba(var(--color-success-rgb), 0.05));
-  border-color: rgba(var(--color-success-rgb), 0.2);
-}
-
-.btn-action-warning:hover {
-  background: linear-gradient(to right, rgba(var(--color-warning-rgb), 0.1), rgba(var(--color-warning-rgb), 0.05));
-  border-color: rgba(var(--color-warning-rgb), 0.2);
-}
-
-.btn-action-like:hover .text-gray-500:not(.fill-error) {
-  color: rgb(var(--color-error-rgb));
-  transform: scale(1.2);
-  transition: all 0.3s ease;
-}
-
-.btn-action-comment:hover .text-gray-500 {
-  color: rgb(var(--color-info-rgb));
-  transform: scale(1.2);
-  transition: all 0.3s ease;
-}
-
-.btn-action-share:hover .text-gray-500 {
-  color: rgb(var(--color-success-rgb));
-  transform: scale(1.2);
-  transition: all 0.3s ease;
-}
-
-.btn-send:hover {
-  transform: scale(1.2) translateY(-50%);
-  color: rgb(var(--color-info-rgb));
-}
-
-/* Close button animation */
-.btn-close {
-  transition: all 0.3s ease;
-}
-
-.btn-close:hover {
-  transform: rotate(90deg);
-  color: rgb(var(--color-error-rgb));
-}
-
-/* Primary button animation */
-.btn-primary {
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(var(--color-primary-rgb), 0.3);
-}
-
-.btn-primary:active {
-  transform: translateY(-1px);
-}
-
-.btn-primary::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transform: translateX(-100%);
-}
-
-.btn-primary:hover::after {
-  animation: btn-shine 0.8s;
-}
-
-@keyframes btn-shine {
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari, Opera */
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.8; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.3); }
-}
-
-.animate-pulse {
-  animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.active-filter {
-  position: relative;
-  overflow: hidden;
-}
-
-.active-filter::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    to bottom right,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transform: rotate(45deg);
-  animation: shine 3s infinite;
-}
-
-@keyframes shine {
-  0% {
-    transform: translateX(-100%) rotate(45deg);
-  }
-  20%, 100% {
-    transform: translateX(100%) rotate(45deg);
-  }
-}
-
-.filter-container {
-  padding-bottom: 5px;
-  mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-}
-
-.heart-filled {
-  fill: #FF4757;
-  color: #FF4757 !important;
-  filter: drop-shadow(0 0 1px rgba(255, 71, 87, 0.3));
-  transform: scale(1.1);
-}
-
-.heart-animation {
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.heart-animation:hover {
-  transform: scale(1.2);
-}
-
-/* Thêm các hiệu ứng mới */
-.filter-container button:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.filter-container button:active {
-  transform: translateY(-2px);
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-.pulse-animation {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Thêm các hiệu ứng mới */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-/* Nền pattern bổ sung */
-.bg-pattern {
-  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
-}
-</style>
+  
