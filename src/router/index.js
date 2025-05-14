@@ -12,6 +12,7 @@ import ModalTestPage from "@/views/ModalTestPage.vue"
 // Trang yêu cầu đăng nhập
 import CreateJobPost from "@/views/CreateJobPost.vue"
 import ApplicationManagement from "@/views/ApplicationManagement.vue"
+import ApplicationDetailView from "@/views/ApplicationDetailView.vue"
 import ProfilePage from "@/views/ProfilePage.vue"
 import UserProfileView from "@/views/UserProfileView.vue"
 import AppointmentManagement from "@/views/AppointmentManagement.vue"
@@ -72,6 +73,12 @@ const router = createRouter({
       name: "applications",
       component: ApplicationManagement,
       meta: { requiresAuth: true, title: "Quản lý đơn ứng tuyển" },
+    },
+    {
+      path: "/applications/:id",
+      name: "application-detail",
+      component: ApplicationDetailView,
+      meta: { requiresAuth: true, title: "Chi tiết đơn ứng tuyển" },
     },
     {
       path: "/profile",

@@ -30,7 +30,6 @@
                   v-model="applicationForm.message"
                   rows="3"
                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
-                  placeholder="Tôi có nhiều kinh nghiệm trong lĩnh vực trang điểm..."
                   required
                 ></textarea>
               </div>
@@ -43,7 +42,6 @@
                   v-model="applicationForm.otherSkills"
                   rows="2"
                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
-                  placeholder="Trang điểm sự kiện, Trang điểm dự tiệc..."
                 ></textarea>
               </div>
               
@@ -55,7 +53,6 @@
                   v-model="applicationForm.preferredContactMethod"
                   type="text"
                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
-                  placeholder="Email hoặc điện thoại sau 18h"
                 />
               </div>
               
@@ -67,7 +64,6 @@
                   v-model="applicationForm.availability"
                   type="text"
                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
-                  placeholder="Có thể làm việc vào cuối tuần và buổi tối"
                 />
               </div>
               
@@ -144,17 +140,7 @@
                 </span>
               </button>
             </div>
-            
-            <!-- Add testing instructions -->
-            <div class="mt-3 text-xs text-gray-500 italic p-2 bg-gray-50 rounded-md">
-              <p class="font-medium mb-1">💡 Gặp lỗi xác thực (403) khi ứng tuyển?</p>
-              <p class="mb-1">Có thể bạn cần thiết lập token xác thực. Mở DevTools Console (F12) và sử dụng một trong các lệnh sau:</p>
-              <ul class="list-disc ml-5 space-y-1 mt-1">
-                <li><code class="bg-gray-100 p-1 rounded font-mono text-gray-700">window.setTestToken()</code> - Thiết lập token test nhanh</li>
-                <li><code class="bg-gray-100 p-1 rounded font-mono text-gray-700">window.setExampleLoginToken()</code> - Thiết lập token giả lập đăng nhập</li>
-                <li><code class="bg-gray-100 p-1 rounded font-mono text-gray-700">window.setAuthTokenDirectly(loginResponse)</code> - Thiết lập token từ kết quả đăng nhập</li>
-              </ul>
-            </div>
+          
           </form>
         </div>
       </div>
@@ -239,27 +225,145 @@
               <template #header>
                 <div class="flex justify-between items-center">
                   <h3 class="text-lg font-semibold text-gray-900">Thông báo ứng tuyển</h3>
-                  <BaseButton 
-                    variant="ghost" 
-                    size="sm"
-                    class="btn-hover-hide"
-                    @click="handleMenuClick('/applications')"
-                  >
-                    Xem tất cả
-                  </BaseButton>
+                  <div class="flex items-center">
+                    <button 
+                      class="p-1 rounded-full hover:bg-gray-100 mr-2 text-gray-500 hover:text-gray-700"
+                      @click="fetchApplications"
+                      title="Làm mới"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </button>
+                    <button 
+                      class="p-1 rounded-full hover:bg-gray-100 mr-2 text-gray-500 hover:text-gray-700"
+                      @click="toggleDebugMode"
+                      title="Debug"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                      </svg>
+                    </button>
+                    <BaseButton 
+                      variant="ghost" 
+                      size="sm"
+                      class="btn-hover-hide"
+                      @click="handleMenuClick('/applications')"
+                    >
+                      Xem tất cả
+                    </BaseButton>
+                  </div>
                 </div>
               </template>
               
-              <div v-if="notifications.length === 0" class="py-4 text-center text-gray-500">
-                Không có thông báo mới
+              <!-- Debug information -->
+              <div v-if="debugMode" class="mb-4 p-3 bg-gray-100 rounded-md text-xs overflow-auto max-h-60">
+                <div class="flex justify-between items-center mb-2">
+                  <p class="font-bold">Debug Mode</p>
+                  <button 
+                    @click="toggleDebugMode" 
+                    class="text-gray-500 hover:text-gray-700"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                
+                <!-- Token Information -->
+                <div class="mb-4 p-2 bg-gray-200 rounded">
+                  <div class="flex justify-between items-center">
+                    <p class="font-bold">Current Token:</p>
+                    <div>
+                      <button 
+                        @click="copyTokenToClipboard" 
+                        class="px-2 py-0.5 bg-blue-500 text-white rounded text-xs mr-1"
+                        title="Copy full token to clipboard"
+                      >
+                        Copy
+                      </button>
+                      <button 
+                        @click="showTokenInput = !showTokenInput" 
+                        class="px-2 py-0.5 bg-green-500 text-white rounded text-xs"
+                      >
+                        {{ showTokenInput ? 'Cancel' : 'Set Token' }}
+                      </button>
+                    </div>
+                  </div>
+                  <p class="mt-1 font-mono break-all bg-gray-100 p-1 rounded">{{ getCurrentTokenForDebug() }}</p>
+                  
+                  <!-- Token Input -->
+                  <div v-if="showTokenInput" class="mt-2">
+                    <textarea 
+                      v-model="debugToken" 
+                      rows="3" 
+                      class="w-full text-xs p-1 border border-gray-300 rounded font-mono"
+                      placeholder="Paste token here"
+                    ></textarea>
+                    <button 
+                      @click="setCustomToken" 
+                      class="mt-1 px-2 py-1 bg-green-500 text-white rounded text-xs"
+                    >
+                      Apply Token
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- API Response -->
+                <p class="font-bold mb-2" v-if="rawApiResponse">API Response:</p>
+                <pre v-if="rawApiResponse">{{ JSON.stringify(rawApiResponse, null, 2) }}</pre>
+                
+                <div class="mt-3 p-2 bg-gray-200 rounded" v-if="notifications">
+                  <p class="font-bold mb-1">Current Notifications Array:</p>
+                  <pre>{{ JSON.stringify(notifications, null, 2) }}</pre>
+                </div>
+                
+                <div class="mt-3">
+                  <button 
+                    @click="notifications = []" 
+                    class="px-2 py-1 bg-red-500 text-white rounded mr-2"
+                  >
+                    Clear Notifications
+                  </button>
+                  <button 
+                    @click="fetchApplications" 
+                    class="px-2 py-1 bg-green-500 text-white rounded"
+                  >
+                    Refetch
+                  </button>
+                </div>
               </div>
               
+              <div v-if="isLoadingNotifications" class="py-6 text-center">
+                <LoaderCircle class="animate-spin mx-auto h-6 w-6 text-gray-400 mb-2" />
+                <p class="text-sm text-gray-500">Đang tải thông báo...</p>
+              </div>
+              
+              <div v-else-if="notifications.length === 0" class="py-4 text-center text-gray-500">
+                <p>Không có thông báo ứng tuyển</p>
+                <p class="text-xs text-gray-400 mt-1">{{ debugMode ? 'Debug: ' + (rawApiResponse ? 'API có dữ liệu nhưng xử lý thất bại' : 'Không có dữ liệu từ API') : '' }}</p>
+                <button 
+                  @click="fetchApplications" 
+                  class="mt-2 text-xs text-primary hover:underline flex items-center justify-center mx-auto"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Làm mới
+                </button>
+              </div>
+              
+              <!-- Add notification count for debugging -->
               <div v-else class="space-y-4">
+                <div v-if="debugMode" class="text-xs bg-blue-50 p-2 rounded text-blue-700">
+                  Đang hiển thị {{ notifications.length }} thông báo
+                </div>
+                
                 <div 
-                  v-for="notification in notifications" 
-                  :key="notification.id"
+                  v-for="(notification, index) in notifications" 
+                  :key="notification.id || index"
                   class="flex items-start p-3 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
-                  @click="viewNotification(notification)"
+                  @click="viewApplication(notification)"
                 >
                   <div class="h-10 w-10 rounded-full bg-gray-100 overflow-hidden mr-3 flex-shrink-0">
                     <img 
@@ -268,14 +372,50 @@
                       class="h-full w-full object-cover"
                     />
                   </div>
-                  <div>
+                  <div class="flex-grow">
                     <p class="text-sm text-gray-700">
                       <span class="font-medium">{{ notification.user.name }}</span> 
                       {{ notification.message }}
                     </p>
                     <span class="text-xs text-gray-500">{{ formatTime(notification.timestamp) }}</span>
+                    <p v-if="notification.applicationData?.message" class="text-xs text-gray-600 mt-1 line-clamp-2 italic">
+                      "{{ notification.applicationData.message }}"
+                    </p>
+                    
+                    <!-- Show job details if available -->
+                    <div v-if="notification.applicationData?.recruitmentPost" class="mt-2 text-xs bg-gray-50 p-2 rounded border border-gray-100">
+                      <p class="font-medium text-gray-700">
+                        {{ notification.applicationData.recruitmentPost.title }}
+                      </p>
+                      <div class="flex items-center mt-1 text-gray-500">
+                        <span>{{ notification.applicationData.recruitmentPost.makeupType }}</span>
+                        <span class="mx-1">•</span>
+                        <span>{{ formatPrice(notification.applicationData.recruitmentPost.compensation) }}</span>
+                      </div>
+                    </div>
+                    
+                    <!-- Show image if available -->
+                    <div v-if="notification.imageUrl" class="mt-2">
+                      <img 
+                        :src="notification.imageUrl" 
+                        alt="Application image" 
+                        class="h-16 w-16 object-cover rounded-md border border-gray-200"
+                      />
+                    </div>
                   </div>
                   <div v-if="!notification.read" class="ml-2 h-2 w-2 rounded-full bg-primary flex-shrink-0"></div>
+                </div>
+                
+                <div v-if="notifications.length > 0" class="text-center pt-2">
+                  <button 
+                    @click="fetchApplications" 
+                    class="text-xs text-primary hover:underline flex items-center justify-center mx-auto"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Làm mới
+                  </button>
                 </div>
               </div>
             </BaseCard>
@@ -392,6 +532,50 @@
                 
                 <!-- Gradient edge effect -->
                 <div class="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
+              </div>
+            </div>
+            
+            <!-- Post Creation Card - Only visible when authenticated -->
+            <div v-if="authStore.isAuthenticated" class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-md mb-6">
+              <div class="p-4">
+                <div class="flex items-start">
+                  <div class="h-10 w-10 rounded-full bg-gray-100 overflow-hidden mr-3 flex-shrink-0">
+                    <img 
+                      :src="authStore.userAvatar || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrtQBXGauSHMKNR-H7uIGq5k7Par8k4scPw&s'" 
+                      alt="User Avatar" 
+                      class="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div 
+                    class="flex-grow bg-gray-100 rounded-full px-4 py-2.5 text-gray-500 cursor-pointer hover:bg-gray-200 transition-colors"
+                    @click="handlePostClick()"
+                  >
+                    Bạn đang nghĩ gì?
+                  </div>
+                </div>
+                <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+                  <button 
+                    class="flex items-center text-gray-600 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition-colors"
+                    @click="handlePostClick()"
+                  >
+                    <Image size="18" class="mr-2 text-gray-500" />
+                    <span class="text-sm font-medium">Hình ảnh</span>
+                  </button>
+                  <button 
+                    class="flex items-center text-gray-600 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition-colors"
+                    @click="handlePostClick()"
+                  >
+                    <Video size="18" class="mr-2 text-gray-500" />
+                    <span class="text-sm font-medium">Video</span>
+                  </button>
+                  <button 
+                    class="flex items-center text-gray-600 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition-colors"
+                    @click="handleJobsClick()"
+                  >
+                    <Briefcase size="18" class="mr-2 text-gray-500" />
+                    <span class="text-sm font-medium">Công việc</span>
+                  </button>
+                </div>
               </div>
             </div>
             
@@ -1051,6 +1235,7 @@
   const currentPage = ref(0);
   const totalPages = ref(0);
   const notifications = ref([]);
+  const isLoadingNotifications = ref(false);
   const trends = ref([]);
   const activeFilter = ref('all');
   const isSubscriptionBannerClosed = ref(localStorage.getItem('subscriptionBannerClosed') === 'true');
@@ -1146,6 +1331,12 @@
       ]
     }
   ];
+  
+  // Add a debug variable to store raw response
+  const rawApiResponse = ref(null);
+  const debugMode = ref(false);
+  const debugToken = ref('');
+  const showTokenInput = ref(false);
   
   // Fetch posts with filter
   const fetchPostsWithFilter = async (filter = 'all') => {
@@ -1828,6 +2019,9 @@
       // Fetch posts from API
       await fetchPostsWithFilter(activeFilter.value);
       
+      // Fetch applications for notifications
+      await fetchApplications();
+      
       // Check and set token from login response
       const tokenSet = checkAndSetToken();
       if (!tokenSet) {
@@ -1851,37 +2045,9 @@
   
   // Check and set token from login response
   const checkAndSetToken = () => {
-    // Try to get token from various sources after login
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('token')) {
-      // If token is present in URL (redirect after login)
-      const token = urlParams.get('token');
-      if (token) {
-        console.log('Found token in URL parameters, storing...');
-        localStorage.setItem('token', token);
-        sessionStorage.setItem('token', token);
-        if (authStore.setToken) {
-          authStore.setToken(token);
-        }
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        return true;
-      }
-    }
-    
-    // Try to get token from localStorage if not in URL
-    const localToken = localStorage.getItem('token');
-    if (localToken) {
-      console.log('Found existing token in localStorage');
-      sessionStorage.setItem('token', localToken);
-      if (authStore.setToken) {
-        authStore.setToken(localToken);
-      }
-      axios.defaults.headers.common['Authorization'] = `Bearer ${localToken}`;
-      return true;
-    }
-    
-    return false;
-  }
+    const token = getMostRecentToken();
+    return !!token; // Return true if token exists
+  };
   
   // Function to save token directly from login response
   window.setAuthTokenDirectly = (loginResponse) => {
@@ -1913,6 +2079,12 @@
         email: loginResponse.email,
         roles: loginResponse.roles
       });
+      
+      // Refresh notifications with the new token
+      if (typeof fetchApplications === 'function') {
+        console.log('Automatically refreshing notifications with new token');
+        fetchApplications();
+      }
       
       return { 
         success: true,
@@ -1960,6 +2132,329 @@
     // Show the modal
     showSimpleModal.value = true;
     console.log('Set showSimpleModal to true:', showSimpleModal.value);
+  };
+  
+  // Get the most recent token from all available sources
+  const getMostRecentToken = () => {
+    console.log('[TOKEN] Getting most recent token...');
+    
+    // Check URL parameters first (highest priority - most recent login)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('token')) {
+      const token = urlParams.get('token');
+      if (token) {
+        console.log('[TOKEN] Found token in URL parameters (most recent)');
+        // Store in all locations for future use
+        localStorage.setItem('token', token);
+        sessionStorage.setItem('token', token);
+        if (authStore.setToken) {
+          authStore.setToken(token);
+        }
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        return token;
+      }
+    }
+    
+    // Check auth store next (likely from recent login)
+    if (authStore.token) {
+      console.log('[TOKEN] Using token from auth store');
+      return authStore.token;
+    }
+    
+    // Check session storage (temporary for current session)
+    const sessionToken = sessionStorage.getItem('token');
+    if (sessionToken) {
+      console.log('[TOKEN] Using token from session storage');
+      return sessionToken;
+    }
+    
+    // Check local storage (persistent)
+    const localToken = localStorage.getItem('token');
+    if (localToken) {
+      console.log('[TOKEN] Using token from local storage');
+      return localToken;
+    }
+    
+    // Check axios defaults (set by other parts of the app)
+    const axiosAuth = axios.defaults.headers.common['Authorization'];
+    if (axiosAuth && axiosAuth.startsWith('Bearer ')) {
+      console.log('[TOKEN] Using token from axios defaults');
+      return axiosAuth.substring(7); // Remove 'Bearer ' prefix
+    }
+    
+    console.log('[TOKEN] No token found in any storage');
+    return null;
+  };
+  
+  // Get the specific token for applications API
+  const getApplicationsApiToken = () => {
+    // Use the specific token provided by the user
+    const specificToken = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyMSIsImlkIjoiMSIsInJvbGVzIjoiUk9MRV9BUlRJU1QiLCJpYXQiOjE3NDcyNTU5MDQsImV4cCI6MTc0NzM0MjMwNH0.aTRzZcUUgtuiRuLjgypF2Kq8Cho4emAsN1JBFnZ0_Ddijq38SaEzMdPUFgBQcACY4v4WLH4ZJvCn22zzBBA2sA";
+    console.log('[APPLICATIONS API] Using specific token for applications API');
+    return specificToken;
+  };
+  
+  // Fetch applications that were sent to the logged in user
+  const fetchApplications = async () => {
+    if (!authStore.isAuthenticated) {
+      console.log('User not authenticated, skipping application fetch');
+      return;
+    }
+    
+    isLoadingNotifications.value = true;
+    rawApiResponse.value = null; // Reset debug data
+    
+    try {
+      console.log('%c[FETCH APPLICATIONS] Starting fetch process', 'background: #333; color: #bada55; padding: 2px;');
+      
+      // Get the specific token for applications API
+      let token = getApplicationsApiToken();
+      
+      console.log('[FETCH APPLICATIONS] Using specific token for applications API');
+      
+      if (!token) {
+        console.error('[FETCH APPLICATIONS] No specific token available for applications API');
+        isLoadingNotifications.value = false;
+        return;
+      }
+      
+      // Ensure token is properly formatted with Bearer prefix
+      const authHeader = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+      
+      console.log('[FETCH APPLICATIONS] Making API request with specific token');
+      
+      // Use both axios and fetch for comparison
+      try {
+        console.log('[FETCH APPLICATIONS] Attempting direct fetch call first');
+        const fetchResponse = await fetch('http://localhost:8082/posting/api/applications/authored', {
+          method: 'GET',
+          headers: {
+            'Authorization': authHeader,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (fetchResponse.ok) {
+          const fetchData = await fetchResponse.json();
+          console.log('%c[FETCH APPLICATIONS] Direct fetch successful', 'color: green; font-weight: bold;');
+          console.log('[FETCH APPLICATIONS] Raw fetch response:', fetchData);
+          rawApiResponse.value = fetchData;
+        } else {
+          console.error('[FETCH APPLICATIONS] Direct fetch failed:', fetchResponse.status, fetchResponse.statusText);
+          // Try to get more details about the error
+          try {
+            const errorData = await fetchResponse.text();
+            console.error('[FETCH APPLICATIONS] Error response:', errorData);
+          } catch (e) {}
+        }
+      } catch (fetchError) {
+        console.error('[FETCH APPLICATIONS] Direct fetch error:', fetchError);
+      }
+      
+      // Make the axios request
+      console.log('[FETCH APPLICATIONS] Now trying with axios');
+      const response = await axios.get('http://localhost:8082/posting/api/applications/authored', {
+        headers: {
+          'Authorization': authHeader
+        }
+      });
+      
+      console.log('[FETCH APPLICATIONS] Axios response status:', response.status);
+      console.log('[FETCH APPLICATIONS] Axios response data:', response.data);
+      
+      // Save raw response for debugging
+      rawApiResponse.value = response.data;
+      
+      // Handle the specific response structure from the API
+      let applicationsData = [];
+      
+      // Check if the response has the expected paginated structure
+      if (response.data && response.data.content && Array.isArray(response.data.content)) {
+        console.log('[FETCH APPLICATIONS] Found paginated response with content array, length:', response.data.content.length);
+        applicationsData = response.data.content;
+      } else if (Array.isArray(response.data)) {
+        console.log('[FETCH APPLICATIONS] Response data is a direct array, length:', response.data.length);
+        applicationsData = response.data;
+      } else {
+        console.error('[FETCH APPLICATIONS] Unexpected response structure:', response.data);
+        notifications.value = [];
+        isLoadingNotifications.value = false;
+        return;
+      }
+      
+      console.log('[FETCH APPLICATIONS] Processed applications data:', applicationsData);
+      
+      if (!applicationsData.length) {
+        console.log('[FETCH APPLICATIONS] No applications found');
+        notifications.value = [];
+        isLoadingNotifications.value = false;
+        return;
+      }
+      
+      console.log('[FETCH APPLICATIONS] Processing', applicationsData.length, 'applications into notifications...');
+      
+      // Transform the application data to notification format
+      const applicationNotifications = await Promise.all(applicationsData.map(async (app, index) => {
+        console.log(`[FETCH APPLICATIONS] Processing application ${index + 1}/${applicationsData.length}:`, app.id);
+        
+        let userData = {
+          name: "Ứng viên",
+          avatar: null
+        };
+        
+        // Fetch user info if applicantUserId is available
+        if (app.applicantUserId) {
+          try {
+            console.log('[FETCH APPLICATIONS] Fetching user info for applicant ID:', app.applicantUserId);
+            
+            const userResponse = await axios.get(`http://localhost:8081/auth/users/${app.applicantUserId}`, {
+              headers: {
+                'Authorization': authHeader
+              }
+            });
+            
+            console.log('[FETCH APPLICATIONS] User info response:', userResponse.data);
+            
+            userData = {
+              name: userResponse.data.fullName || userResponse.data.username || 'Ứng viên',
+              avatar: userResponse.data.avatarUrl,
+              id: userResponse.data.id,
+              email: userResponse.data.email,
+              phone: userResponse.data.phone
+            };
+          } catch (error) {
+            console.error(`[FETCH APPLICATIONS] Failed to fetch user info for ID ${app.applicantUserId}:`, error);
+          }
+        }
+        
+        // Get image URL if available
+        let imageUrl = null;
+        if (app.attachedImages && app.attachedImages.length > 0) {
+          imageUrl = app.attachedImages[0].storagePath;
+          console.log('[FETCH APPLICATIONS] Found image URL:', imageUrl);
+        }
+        
+        // Get job title if available
+        let jobTitle = '';
+        if (app.recruitmentPost && app.recruitmentPost.title) {
+          jobTitle = app.recruitmentPost.title;
+          console.log('[FETCH APPLICATIONS] Found job title:', jobTitle);
+        }
+        
+        // Add current timestamp if not available
+        const now = new Date();
+        // Use postedAt from recruitmentPost if available
+        const timestamp = app.appliedAt || 
+                         (app.recruitmentPost && app.recruitmentPost.postedAt ? app.recruitmentPost.postedAt : now.toISOString());
+        
+        const notificationItem = {
+          id: app.id || Math.random().toString(36).substring(2, 11),
+          type: 'application',
+          message: `đã ứng tuyển vào công việc "${jobTitle || 'của bạn'}"`,
+          timestamp: timestamp,
+          read: false,
+          user: userData,
+          applicationData: app,
+          imageUrl: imageUrl
+        };
+        
+        console.log('[FETCH APPLICATIONS] Created notification item:', notificationItem);
+        return notificationItem;
+      }));
+      
+      console.log('%c[FETCH APPLICATIONS] Final processed notifications:', 'color: blue; font-weight: bold;', applicationNotifications);
+      
+      if (applicationNotifications.length > 0) {
+        // Force reactive update by creating a new array
+        notifications.value = [...applicationNotifications];
+        console.log('[FETCH APPLICATIONS] Notifications state updated with', applicationNotifications.length, 'items');
+        console.log('[FETCH APPLICATIONS] Current notifications.value:', notifications.value);
+      } else {
+        console.log('[FETCH APPLICATIONS] No notifications to display after processing');
+        notifications.value = [];
+      }
+      
+      // Force a UI update by setting a timeout
+      setTimeout(() => {
+        console.log('[FETCH APPLICATIONS] Checking notifications after timeout:', notifications.value.length);
+      }, 500);
+      
+    } catch (error) {
+      console.error('[FETCH APPLICATIONS] Error fetching applications:', error);
+      console.error('[FETCH APPLICATIONS] Error details:', error.response ? error.response.data : 'No response data');
+      notifications.value = [];
+    } finally {
+      isLoadingNotifications.value = false;
+      console.log('[FETCH APPLICATIONS] Finished fetching applications, loading state set to false');
+    }
+  };
+  
+  // Toggle debug mode
+  const toggleDebugMode = () => {
+    debugMode.value = !debugMode.value;
+    console.log('[DEBUG] Debug mode:', debugMode.value ? 'ON' : 'OFF');
+  };
+  
+  // View application details
+  const viewApplication = (notification) => {
+    notification.read = true;
+    
+    // Navigate to application details
+    if (notification.applicationData && notification.applicationData.id) {
+      router.push(`/applications/${notification.applicationData.id}`);
+    }
+  };
+  
+  // Get the current token for debugging
+  const getCurrentTokenForDebug = () => {
+    const token = getMostRecentToken();
+    if (token) {
+      // Only show first and last few characters for security
+      const firstChars = token.substring(0, 10);
+      const lastChars = token.substring(token.length - 10);
+      const middleLength = token.length - 20;
+      return `${firstChars}${'*'.repeat(middleLength > 0 ? middleLength : 0)}${lastChars} (Length: ${token.length})`;
+    }
+    return 'No token found';
+  };
+  
+  // Set a custom token for testing
+  const setCustomToken = () => {
+    if (!debugToken.value.trim()) {
+      alert('Please enter a token');
+      return;
+    }
+    
+    const token = debugToken.value.trim();
+    console.log('[DEBUG] Setting custom token:', token.substring(0, 10) + '...');
+    
+    // Store in all locations
+    localStorage.setItem('token', token);
+    sessionStorage.setItem('token', token);
+    if (authStore.setToken) {
+      authStore.setToken(token);
+    }
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    
+    alert('Token set successfully! Refreshing notifications...');
+    fetchApplications();
+    showTokenInput.value = false;
+  };
+  
+  // Copy token to clipboard
+  const copyTokenToClipboard = async () => {
+    const token = getMostRecentToken();
+    if (token) {
+      try {
+        await navigator.clipboard.writeText(token);
+        alert('Token copied to clipboard!');
+      } catch (err) {
+        console.error('Failed to copy token:', err);
+        alert('Failed to copy token. See console for details.');
+      }
+    } else {
+      alert('No token available to copy');
+    }
   };
   </script>
   
