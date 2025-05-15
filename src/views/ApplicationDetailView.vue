@@ -504,7 +504,7 @@ const fetchApplicationDetail = async () => {
     }
     
     // Make API request with token
-    const response = await axios.get(`${window.API_URL}${window.POSTING_API_PATH}/applications/${applicationId}`, {
+    const response = await axios.get(`https://truongvinhkhuong.io.vn/posting/api/applications/${applicationId}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -521,7 +521,12 @@ const fetchApplicationDetail = async () => {
     console.log('Application detail fetched:', application.value);
   } catch (err) {
     console.error('Error fetching application detail:', err);
-    error.value = err.response?.data?.message || 'Không thể tải dữ liệu. Vui lòng thử lại sau.';
+    
+    if (err.response && err.response.status === 500) {
+      error.value = 'Lỗi máy chủ khi tải dữ liệu đơn ứng tuyển. Có thể đơn ứng tuyển không tồn tại hoặc bạn không có quyền truy cập.';
+    } else {
+      error.value = err.response?.data?.message || 'Không thể tải dữ liệu. Vui lòng thử lại sau.';
+    }
   } finally {
     isLoading.value = false;
   }
@@ -572,8 +577,8 @@ const confirmAction = async () => {
     
     // Determine API endpoint and action based on actionType
     const endpoint = actionType.value === 'accept' 
-      ? `${window.API_URL}${window.POSTING_API_PATH}/applications/${applicationId}/accept`
-      : `${window.API_URL}${window.POSTING_API_PATH}/applications/${applicationId}/reject`;
+      ? `https://truongvinhkhuong.io.vn/posting/api/applications/${applicationId}/accept`
+      : `https://truongvinhkhuong.io.vn/posting/api/applications/${applicationId}/reject`;
     
     console.log('Making API request to:', endpoint);
     
