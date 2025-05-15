@@ -242,6 +242,12 @@ const handleLogin = async () => {
     isLoading.value = true;
     errorMessage.value = '';
     
+    // Debug information
+    console.log('Login request initiated');
+    console.log('API URL:', window.API_URL);
+    console.log('IDENTITY_API_PATH:', window.IDENTITY_API_PATH);
+    console.log('Full URL:', `${window.API_URL}${window.IDENTITY_API_PATH}/auth/signin`);
+    
     await authStore.login(username.value, password.value);
     
     // Chuyển hướng người dùng
@@ -251,6 +257,7 @@ const handleLogin = async () => {
     console.error('Login error:', error);
     if (error.response) {
       // Hiển thị thông báo lỗi từ backend
+      console.error('Error response:', error.response.data);
       errorMessage.value = error.response.data.message || 'Đăng nhập không thành công. Vui lòng thử lại.';
     } else {
       errorMessage.value = 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.';

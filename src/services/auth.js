@@ -8,7 +8,7 @@ const authService = {
    * @returns {Promise} - Promise trả về thông tin người dùng
    */
   login(username, password) {
-    return apiClient.post('/auth/auth/signin', {
+    return apiClient.post('/auth/signin', {
       username,
       password
     });
@@ -20,7 +20,7 @@ const authService = {
    * @returns {Promise} - Promise trả về kết quả đăng ký
    */
   register(userData) {
-    return apiClient.post('/auth/auth/signup', userData);
+    return apiClient.post('/auth/signup', userData);
   },
 
   /**
@@ -35,7 +35,7 @@ const authService = {
    * @returns {Promise} - Promise trả về thông tin người dùng
    */
   getCurrentUser() {
-    return apiClient.get('/auth/auth/user');
+    return apiClient.get('/auth/user');
   },
 
   /**

@@ -18,6 +18,7 @@ apiClient.interceptors.request.use(
         const userData = JSON.parse(user);
         if (userData && userData.token) {
           config.headers['Authorization'] = `Bearer ${userData.token}`;
+          console.log(`Request to ${config.url} with auth token: ${userData.token.substring(0, 15)}...`);
         }
       } catch (e) {
         console.error('Error parsing user data from localStorage', e);
