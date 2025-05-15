@@ -8,7 +8,7 @@ const authService = {
    * @returns {Promise} - Promise trả về thông tin người dùng
    */
   login(username, password) {
-    return apiClient.post('/auth/signin', {
+    return apiClient.post('https://truongvinhkhuong.io.vn/auth/auth/signin', {
       username,
       password
     });

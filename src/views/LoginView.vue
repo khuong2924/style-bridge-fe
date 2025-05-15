@@ -244,9 +244,7 @@ const handleLogin = async () => {
     
     // Debug information
     console.log('Login request initiated');
-    console.log('API URL:', window.API_URL);
-    console.log('IDENTITY_API_PATH:', window.IDENTITY_API_PATH);
-    console.log('Full URL:', `${window.API_URL}${window.IDENTITY_API_PATH}/auth/signin`);
+    console.log('Using direct URL: https://truongvinhkhuong.io.vn/auth/auth/signin');
     
     await authStore.login(username.value, password.value);
     

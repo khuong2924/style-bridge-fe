@@ -37,6 +37,17 @@ apiClient.interceptors.response.use(
   error => {
     const originalRequest = error.config;
     
+    console.error('API Error:', error.message);
+    if (error.response) {
+      console.error('Error Status:', error.response.status);
+      console.error('Error Data:', error.response.data);
+    } else if (error.request) {
+      console.error('Error Request:', error.request);
+      console.error('No response received - possible network issue or CORS problem');
+    } else {
+      console.error('Error during request setup:', error.message);
+    }
+    
     // Handle 401 Unauthorized errors
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       // Could add token refresh logic here
