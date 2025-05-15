@@ -2504,10 +2504,23 @@
   
   // Get the specific token for applications API
   const getApplicationsApiToken = () => {
-    // Use the specific token provided by the user
-    const specificToken = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyMSIsImlkIjoiMSIsInJvbGVzIjoiUk9MRV9BUlRJU1QiLCJpYXQiOjE3NDcyNTU5MDQsImV4cCI6MTc0NzM0MjMwNH0.aTRzZcUUgtuiRuLjgypF2Kq8Cho4emAsN1JBFnZ0_Ddijq38SaEzMdPUFgBQcACY4v4WLH4ZJvCn22zzBBA2sA";
-    console.log('[APPLICATIONS API] Using specific token for applications API');
-    return specificToken;
+    // First try to get token from localStorage or sessionStorage
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    
+    if (token) {
+      console.log('[APPLICATIONS API] Using token from storage');
+      return token;
+    }
+    
+    // Try to get from auth store if available
+    if (authStore.token) {
+      console.log('[APPLICATIONS API] Using token from auth store');
+      return authStore.token;
+    }
+    
+    // If no token found, log an error
+    console.error('[APPLICATIONS API] No token found in storage or auth store');
+    return null;
   };
   
   // Fetch applications that were sent to the logged in user
@@ -2580,12 +2593,24 @@
         }
       });
       
-      
       console.log('[FETCH APPLICATIONS] Axios response status:', response.status);
       console.log('[FETCH APPLICATIONS] Axios response data:', response.data);
       
       // Save raw response for debugging
       rawApiResponse.value = response.data;
+      
+      // Check for auth error message in response
+      if (response.data && response.data.message === "Login to view applications for your posts") {
+        console.error('[FETCH APPLICATIONS] Authentication error:', response.data.message);
+        notifications.value = [];
+        isLoadingNotifications.value = false;
+        
+        // Show error in UI or trigger re-login
+        if (debugMode.value) {
+          alert('Authentication error: ' + response.data.message + '\n\nPlease check your token or login again.');
+        }
+        return;
+      }
       
       // Handle the specific response structure from the API
       let applicationsData = [];

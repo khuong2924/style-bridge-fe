@@ -456,11 +456,18 @@
       }
       
       // Make API request with token
-      const response = await axios.get(`${window.API_URL}${window.POSTING_API_PATH}/api/applications/authored`, {
+      const response = await axios.get(`https://truongvinhkhuong.io.vn/posting/api/applications/authored`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
+      
+      // Check for auth error message in response
+      if (response.data && response.data.message === "Login to view applications for your posts") {
+        error.value = 'Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.';
+        isLoading.value = false;
+        return;
+      }
       
       // Process the response data
       applications.value = response.data.map(app => ({
@@ -514,8 +521,8 @@
       
       // Determine API endpoint and action based on actionType
       const endpoint = actionType.value === 'accept' 
-        ? `${window.API_URL}${window.POSTING_API_PATH}/applications/${selectedApplication.value.id}/accept`
-        : `${window.API_URL}${window.POSTING_API_PATH}/applications/${selectedApplication.value.id}/reject`;
+        ? `https://truongvinhkhuong.io.vn/posting/api/applications/${selectedApplication.value.id}/accept`
+        : `https://truongvinhkhuong.io.vn/posting/api/applications/${selectedApplication.value.id}/reject`;
       
       // Make API request with token
       await axios.post(endpoint, 
