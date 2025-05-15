@@ -2162,29 +2162,35 @@
       const formData = new FormData();
       formData.append('recruitmentPostId', applicationForm.value.recruitmentPostId);
       formData.append('message', applicationForm.value.message);
-      
-      if (applicationForm.value.otherSkills) {
-        formData.append('otherSkills', applicationForm.value.otherSkills);
-      }
-      
-      if (applicationForm.value.preferredContactMethod) {
-        formData.append('preferredContactMethod', applicationForm.value.preferredContactMethod);
-      }
-      
-      if (applicationForm.value.availability) {
-        formData.append('availability', applicationForm.value.availability);
-      }
+      formData.append('otherSkills', applicationForm.value.otherSkills || '');
+      formData.append('preferredContactMethod', applicationForm.value.preferredContactMethod || '');
+      formData.append('availability', applicationForm.value.availability || '');
       
       // Append images if any
-      applicationForm.value.images.forEach((image) => {
-        formData.append('images', image.file);
-      });
+      if (applicationForm.value.images && applicationForm.value.images.length > 0) {
+        // For each image, append with the same field name 'images'
+        applicationForm.value.images.forEach((image) => {
+          if (image.file instanceof File) {
+            formData.append('images', image.file, image.file.name);
+            console.log(`Appending file: ${image.file.name}, size: ${image.file.size}, type: ${image.file.type}`);
+          }
+        });
+      }
+      
+      // Log the form data entries for debugging
+      console.log('Form data entries:');
+      for (let pair of formData.entries()) {
+        const value = pair[1] instanceof File 
+          ? `File: ${pair[1].name}, size: ${pair[1].size}, type: ${pair[1].type}` 
+          : pair[1];
+        console.log(`${pair[0]}: ${value}`);
+      }
       
       // Ensure token is set in global axios defaults
       axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
       
       // Make a direct fetch request to get better control and debugging
-      const response = await fetch(`${window.API_URL}${window.POSTING_API_PATH}/applications/with-images`, {
+      const response = await fetch(`https://truongvinhkhuong.io.vn/posting/applications/with-images`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authToken}`
@@ -2827,6 +2833,72 @@
     setTimeout(() => {
       showAdvancedFilters.value = false;
     }, 300);
+  };
+  
+  // File input handling for application form
+  const handleApplicationFileChange = (event) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    
+    // Process each selected file
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (!file.type.match('image.*')) {
+        alert('Chỉ chấp nhận file hình ảnh');
+        continue;
+      }
+      
+      // Create a preview for the image
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        applicationForm.value.images.push({
+          file: file,
+          preview: e.target.result
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  // Remove image from application form
+  const removeApplicationImage = (index) => {
+    applicationForm.value.images.splice(index, 1);
+  };
+  
+  // Handle image upload for application form
+  const handleImageUpload = (event) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    
+    // Process each selected file
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (!file.type.match('image.*')) {
+        alert('Chỉ chấp nhận file hình ảnh');
+        continue;
+      }
+      
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        alert(`File ${file.name} quá lớn. Kích thước tối đa là 2MB.`);
+        continue;
+      }
+      
+      // Create a preview for the image
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        applicationForm.value.images.push({
+          file: file,
+          preview: e.target.result
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  // Remove image from application form
+  const removeImage = (index) => {
+    applicationForm.value.images.splice(index, 1);
   };
   </script>
   
