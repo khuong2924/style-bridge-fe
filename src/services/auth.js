@@ -11,6 +11,8 @@ const authService = {
     return apiClient.post('https://truongvinhkhuong.io.vn/auth/auth/signin', {
       username,
       password
+    }, {
+      baseURL: '' // Override base URL to use the complete URL provided
     });
   },
 
