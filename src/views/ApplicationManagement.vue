@@ -456,7 +456,7 @@
       }
       
       // Make API request with token
-      const response = await axios.get(`${window.API_URL}${window.POSTING_API_PATH}/applications/authored`, {
+      const response = await axios.get(`${window.API_URL}${window.POSTING_API_PATH}/api/applications/authored`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

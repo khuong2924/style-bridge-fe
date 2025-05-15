@@ -2190,7 +2190,7 @@
       axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
       
       // Make a direct fetch request to get better control and debugging
-      const response = await fetch(`https://truongvinhkhuong.io.vn/posting/applications/with-images`, {
+      const response = await fetch(`https://truongvinhkhuong.io.vn/posting/api/applications/with-images`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authToken}`
@@ -2547,7 +2547,7 @@
       // Use both axios and fetch for comparison
       try {
         console.log('[FETCH APPLICATIONS] Attempting direct fetch call first');
-        const fetchResponse = await fetch(`${baseUrl}${postingPath}/api/applications/authored`, {
+        const fetchResponse = await fetch(`https://truongvinhkhuong.io.vn/posting/api/applications/authored`, {
           method: 'GET',
           headers: {
             'Authorization': authHeader,
@@ -2574,11 +2574,12 @@
       
       // Make the axios request
       console.log('[FETCH APPLICATIONS] Now trying with axios');
-      const response = await axios.get(`${baseUrl}${postingPath}/api/applications/authored`, {
+      const response = await axios.get(`https://truongvinhkhuong.io.vn/posting/api/applications/authored`, {
         headers: {
           'Authorization': authHeader
         }
       });
+      
       
       console.log('[FETCH APPLICATIONS] Axios response status:', response.status);
       console.log('[FETCH APPLICATIONS] Axios response data:', response.data);
