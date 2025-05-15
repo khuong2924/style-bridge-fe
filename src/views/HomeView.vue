@@ -2250,6 +2250,12 @@
     isLoading.value = true;
     
     try {
+      // Log environment variables for debugging
+      console.log('Environment variables check:');
+      console.log('window.API_URL =', window.API_URL);
+      console.log('window.POSTING_API_PATH =', window.POSTING_API_PATH);
+      console.log('window.IDENTITY_API_PATH =', window.IDENTITY_API_PATH);
+      
       // Initialize the modal system
       document.body.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && showApplicationModal.value) {
@@ -2527,10 +2533,15 @@
       
       console.log('[FETCH APPLICATIONS] Making API request with specific token');
       
+      // Sử dụng biến môi trường thay vì URL cứng
+      const baseUrl = window.API_URL || 'http://localhost';
+      const postingPath = window.POSTING_API_PATH || '/posting';
+      const authPath = window.IDENTITY_API_PATH || '/auth';
+      
       // Use both axios and fetch for comparison
       try {
         console.log('[FETCH APPLICATIONS] Attempting direct fetch call first');
-        const fetchResponse = await fetch(`${window.API_URL}${window.POSTING_API_PATH}/applications/authored`, {
+        const fetchResponse = await fetch(`${baseUrl}${postingPath}/api/applications/authored`, {
           method: 'GET',
           headers: {
             'Authorization': authHeader,
@@ -2557,7 +2568,7 @@
       
       // Make the axios request
       console.log('[FETCH APPLICATIONS] Now trying with axios');
-      const response = await axios.get(`${window.API_URL}${window.POSTING_API_PATH}/applications/authored`, {
+      const response = await axios.get(`${baseUrl}${postingPath}/api/applications/authored`, {
         headers: {
           'Authorization': authHeader
         }
@@ -2611,7 +2622,7 @@
           try {
             console.log('[FETCH APPLICATIONS] Fetching user info for applicant ID:', app.applicantUserId);
             
-            const userResponse = await axios.get(`${window.API_URL}${window.IDENTITY_API_PATH}/users/${app.applicantUserId}`, {
+            const userResponse = await axios.get(`${baseUrl}${authPath}/users/${app.applicantUserId}`, {
               headers: {
                 'Authorization': authHeader
               }
@@ -2780,9 +2791,13 @@
   // Fetch unique locations
   const fetchUniqueLocations = async () => {
     try {
+      // Sử dụng biến môi trường thay vì URL cứng
+      const baseUrl = window.API_URL || 'http://localhost';
+      const postingPath = window.POSTING_API_PATH || '/posting';
+      
       // This is a fallback in case we don't have any posts yet
       // In most cases, locations will be extracted from posts
-      const response = await axios.get(`${window.API_URL}${window.POSTING_API_PATH}/locations`);
+      const response = await axios.get(`${baseUrl}${postingPath}/api/locations`);
       if (response.data && Array.isArray(response.data)) {
         const apiLocations = response.data.map(location => 
           typeof location === 'string' ? location : location.name || location.district || ''
